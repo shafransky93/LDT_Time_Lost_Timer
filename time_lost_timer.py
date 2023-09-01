@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk  # Import ttk for the Combobox
 from tkinter import scrolledtext
 from tkinter import messagebox
 from datetime import datetime, timedelta
@@ -27,6 +28,10 @@ class TimerApp:
         menubar.add_cascade(label="Help", menu=help_menu)
         help_menu.add_command(label="About", command=self.show_help)
 
+        # Reason tab
+        self.reason_combobox = ttk.Combobox(root, values=['weather', 'dome', 'mount', 'AOS', 'TCS', 'instrument', 'software', 'network'])
+        self.reason_combobox.grid(row=1, column=3, padx=10, pady=10)
+
         # Labels and buttons
         self.label = tk.Label(root, text="No observing time lost", font=("Helvetica", 48))
         self.label.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
@@ -40,7 +45,7 @@ class TimerApp:
         self.log_button.grid(row=1, column=2, padx=10, pady=10)
 
         self.log_text = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=40, height=10)
-        self.log_text.grid(row=2, column=0, columnspan=3, padx=0, pady=0, sticky="nsew")  # Make it stretch
+        self.log_text.grid(row=2, column=0, columnspan=4, padx=0, pady=0, sticky="nsew")  # Make it stretch
 
         root.grid_rowconfigure(2, weight=1)
         root.grid_columnconfigure(0, weight=1)
@@ -57,7 +62,11 @@ class TimerApp:
         if self.running:
             current_time = datetime.now()
             self.elapsed_time += current_time - self.start_time
-            log_entry = f"Timer start: {self.start_time}, Timer stop: {current_time}, Observing time lost: {self.elapsed_time}"
+            selected_reason = self.reason_combobox.get()
+            if selected_reason:
+                log_entry = f"Timer start: {self.start_time}, Timer stop: {current_time}, Observing time lost: {self.elapsed_time}, Reason: {selected_reason}"
+            else:
+                log_entry = f"Timer start: {self.start_time}, Timer stop: {current_time}, Observing time lost: {self.elapsed_time}, Reason: None"
             self.log.append(log_entry)
             self.start_time = None
             self.running = False
@@ -75,12 +84,22 @@ class TimerApp:
         if self.start_time is not None:
             current_time = datetime.now()
             elapsed_time = self.elapsed_time + (current_time - self.start_time)
-            log_entry = f"Current start: {self.start_time}, Current stop: {current_time}, Observing time lost: {elapsed_time}"
+            selected_reason = self.reason_combobox.get() 
+
+            if selected_reason:
+                log_entry = f"Current start: {self.start_time}, Current stop: {current_time}, Observing time lost: {elapsed_time}, Reason: {selected_reason}"
+            else:
+                log_entry = f"Current start: {self.start_time}, Current stop: {current_time}, Observing time lost: {elapsed_time}, Reason: None"
+            
             self.log.append(log_entry)
-            # Update the scrolled text widget to display the logged values
             self.log_text.insert(tk.END, log_entry + "\n")
+            
         else:
-            current_time_entry = f"Current Time: {datetime.now()}, Observing time lost: {self.elapsed_time}"
+            selected_reason = self.reason_combobox.get() 
+            if selected_reason:
+                current_time_entry = f"Current Time: {datetime.now()}, Observing time lost: {self.elapsed_time}, Reason: {selected_reason}"
+            else:
+                current_time_entry = f"Current Time: {datetime.now()}, Observing time lost: {self.elapsed_time}, Reason: None"
             self.log_text.insert(tk.END, current_time_entry + "\n")
 
     def show_help(self):
