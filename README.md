@@ -1,11 +1,13 @@
 # LDT Time Lost Timer
-This program is a Python GUI application is designed to assist LDT operators in tracking and logging time lost during operations with the Lowell Discovery Telescope (LDT).
+This program is a Python GUI application is designed to assist LDT operators in tracking and logging of time lost during operations with the Lowell Discovery Telescope (LDT).
 
 Key features include:
 
-* Timer Function: Users can start and stop a timer to measure elapsed observation time lost. The timer display updates in real-time (timing is marginally off by fractions of a second).
+* Timer Function: Users can start and stop a timer to measure elapsed observation time lost. The timer display updates in real-time
+
+   *note: timing is marginally off by fractions of a second*.
   
-* Logging: The application allows users to log start and stop times, along with total observing time lost, by clicking the "Log" button.
+* Logging: The application allows users to log start and stop times with an associated resoning, along with total observing time lost, by clicking the "Log" button.
 
 * Log Display: A scrollable text area presents logged entries, including time details and cumulative observation time lost.
 
