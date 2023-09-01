@@ -3,15 +3,15 @@ This program is a Python GUI application created using the tkinter library. It's
 
 Key features include:
 
-* Timer Function: Users can start and stop a timer to measure elapsed observation time. The timer display updates in real-time.
-
+* Timer Function: Users can start and stop a timer to measure elapsed observation time lost. The timer display updates in real-time (timing is marginally off by fractions of a second).
+  
 * Logging: The application allows users to log start and stop times, along with total observing time lost, by clicking the "Log" button.
 
 * Log Display: A scrollable text area presents logged entries, including time details and cumulative observation time lost.
 
-* Menu Bar: The GUI features a menu for program exit and access to an "About" dialog explaining its use.
+* Reason Tab: Dropdown menu to select reson for closure.
 
-* Visual Indicators: "Start" and "Stop" buttons change color to indicate the timer's state visually.
+* Menu Bar: The GUI features a menu for program exit and access to an "About" dialog explaining its use.
 
 * Help Dialog: An "About" dialog provides concise instructions for using the program effectively.
 
