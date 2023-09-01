@@ -1,5 +1,5 @@
 # LDT Time Lost Timer
-This program is a Python GUI application created using the tkinter library. It's designed to assist LDT operators in tracking and logging time lost during their observation sessions with the Lowell Discovery Telescope (LDT).
+This program is a Python GUI application is designed to assist LDT operators in tracking and logging time lost during operations with the Lowell Discovery Telescope (LDT).
 
 Key features include:
 
