@@ -32,7 +32,7 @@ class TimerApp:
         reason_label = tk.Label(root, text="Reason for Closure:")
         reason_label.grid(row=0, column=3, padx=10, pady=10)
         
-        self.reason_combobox = ttk.Combobox(root, values=['weather', 'dome', 'mount', 'AOS', 'TCS', 'instrument', 'software', 'network'])
+        self.reason_combobox = ttk.Combobox(root, values=['Weather', 'Dome', 'Mount', 'AOS', 'TCS', 'Instrument', 'Software', 'Network'])
         self.reason_combobox.grid(row=1, column=3, padx=10, pady=10)
 
         # Labels and buttons
