@@ -29,6 +29,9 @@ class TimerApp:
         help_menu.add_command(label="About", command=self.show_help)
 
         # Reason tab
+        reason_label = tk.Label(root, text="Reason for Closure:")
+        reason_label.grid(row=0, column=3, padx=10, pady=10)
+        
         self.reason_combobox = ttk.Combobox(root, values=['weather', 'dome', 'mount', 'AOS', 'TCS', 'instrument', 'software', 'network'])
         self.reason_combobox.grid(row=1, column=3, padx=10, pady=10)
 
