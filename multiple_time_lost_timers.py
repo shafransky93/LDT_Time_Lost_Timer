@@ -19,20 +19,20 @@ class BaseTimer:
         self.elapsed_time = timedelta()
         self.label = None
 
-        self.reason_label = tk.Label(root, text="", font=("Helvetica", 12), justify=tk.LEFT)
-        self.reason_label.grid(row=0, column=4, padx=10, pady=10)
+        self.reason_label = tk.Label(root, text="", font=("Helvetica", 12), justify=tk.CENTER)
+        self.reason_label.grid(row=0, column=4, padx=0, pady=0)
 
     def create(self, row_index):
         self.label = tk.Label(self.root, text=f"{self.name}: No time lost", font=("Helvetica", 24))
-        self.label.grid(row=row_index, column=0, columnspan=3, padx=0, pady=0)
+        self.label.grid(row=row_index, column=0, columnspan=1, padx=0, pady=0)
 
-        self.start_button = tk.Button(self.root, text="Start", command=self.start_timer, bg="green", fg="white")
-        self.stop_button = tk.Button(self.root, text="Stop", command=self.stop_timer, bg="red", fg="white")
-        self.log_button = tk.Button(self.root, text="Log", command=self.log_time)
+        self.start_button = tk.Button(self.root, text="Start Event", command=self.start_timer, bg="green", fg="white")
+        self.stop_button = tk.Button(self.root, text="Stop Event", command=self.stop_timer, bg="red", fg="white")
+        self.log_button = tk.Button(self.root, text="Log Event", command=self.log_time)
 
-        self.start_button.grid(row=row_index, column=3, padx=0, pady=0)
-        self.stop_button.grid(row=row_index, column=4, padx=0, pady=0)
-        self.log_button.grid(row=row_index, column=5, padx=0, pady=0)
+        self.start_button.grid(row=row_index, column=2, padx=5, pady=0)
+        self.stop_button.grid(row=row_index, column=3, padx=5, pady=0)
+        self.log_button.grid(row=row_index, column=5, padx=5, pady=0)
 
         self.reason_combobox0 = ttk.Combobox(root, values=['Weather1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
         self.reason_combobox1 = ttk.Combobox(root, values=['Technical1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
@@ -40,11 +40,11 @@ class BaseTimer:
         self.reason_combobox3 = ttk.Combobox(root, values=['Staff1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
         self.reason_combobox4 = ttk.Combobox(root, values=['Other1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
 
-        self.reason_combobox0.grid(row=3, column=6, padx=5, pady=0)
-        self.reason_combobox1.grid(row=4, column=6, padx=5, pady=0)
-        self.reason_combobox2.grid(row=5, column=6, padx=5, pady=0)
-        self.reason_combobox3.grid(row=6, column=6, padx=5, pady=0)
-        self.reason_combobox4.grid(row=7, column=6, padx=5, pady=0)
+        self.reason_combobox0.grid(row=3, column=4, padx=82, pady=0)
+        self.reason_combobox1.grid(row=4, column=4, padx=82, pady=0)
+        self.reason_combobox2.grid(row=5, column=4, padx=82, pady=0)
+        self.reason_combobox3.grid(row=6, column=4, padx=82, pady=0)
+        self.reason_combobox4.grid(row=7, column=4, padx=82, pady=0)
 
     def stop_timer(self):
         if self.running:
@@ -133,8 +133,6 @@ class BaseTimer:
             self.root.after(100, self.update_timer)
             self.reason_label.config(text=reason_label_text)
 
-            
-
     def log_time(self):
         if self.start_time is not None:
             current_time = datetime.now()
@@ -179,7 +177,7 @@ class TimerApp:
 
         # Main timer
         self.label = tk.Label(root, text="TBD", font=("Helvetica", 48))
-        self.label.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
+        self.label.grid(row=0, column=0, columnspan=3, padx=20, pady=75)
 
         self.timers = []
         # Dropdown menu
@@ -208,12 +206,8 @@ class TimerApp:
         help_menu.add_command(label="About", command=self.show_help)
 
         # Timer buttons
-        self.start_button = tk.Button(root, text="Start", command=self.start_timer, bg="green", fg="white")
-        self.stop_button = tk.Button(root, text="Stop", command=self.stop_timer, bg="red", fg="white")
-        self.log_button = tk.Button(root, text="Log", command=self.log_time)
-
         self.log_text = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=40, height=10)
-        self.log_text.grid(row=2, column=0, columnspan=4, padx=0, pady=0, sticky="nsew")
+        self.log_text.grid(row=2, column=0, columnspan=6, padx=0, pady=0, sticky="nsew")
 
         root.grid_rowconfigure(2, weight=1)
         root.grid_columnconfigure(0, weight=1)
