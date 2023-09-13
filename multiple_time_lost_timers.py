@@ -4,7 +4,7 @@ from tkinter import scrolledtext
 from tkinter import messagebox
 from datetime import datetime, timedelta
 
-class Timer:
+class BaseTimer:
     def __init__(self, root, name, main_timer, reason_combobox):
         self.root = root
         self.name = name
@@ -19,20 +19,32 @@ class Timer:
         self.elapsed_time = timedelta()
         self.label = None
 
+        self.reason_label = tk.Label(root, text="", font=("Helvetica", 12), justify=tk.LEFT)
+        self.reason_label.grid(row=0, column=4, padx=10, pady=10)
+
     def create(self, row_index):
         self.label = tk.Label(self.root, text=f"{self.name}: No time lost", font=("Helvetica", 24))
-        self.label.grid(row=row_index, column=0, columnspan=3, padx=20, pady=10)
+        self.label.grid(row=row_index, column=0, columnspan=3, padx=0, pady=0)
 
         self.start_button = tk.Button(self.root, text="Start", command=self.start_timer, bg="green", fg="white")
         self.stop_button = tk.Button(self.root, text="Stop", command=self.stop_timer, bg="red", fg="white")
         self.log_button = tk.Button(self.root, text="Log", command=self.log_time)
 
-        self.start_button.grid(row=row_index, column=3, padx=10, pady=10)
-        self.stop_button.grid(row=row_index, column=4, padx=10, pady=10)
-        self.log_button.grid(row=row_index, column=5, padx=10, pady=10)
+        self.start_button.grid(row=row_index, column=3, padx=0, pady=0)
+        self.stop_button.grid(row=row_index, column=4, padx=0, pady=0)
+        self.log_button.grid(row=row_index, column=5, padx=0, pady=0)
 
-        self.reason_combobox = ttk.Combobox(self.root, values=['Reason1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
-        self.reason_combobox.grid(row=row_index, column=6, padx=10, pady=10)
+        self.reason_combobox0 = ttk.Combobox(root, values=['Weather1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox1 = ttk.Combobox(root, values=['Technical1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox2 = ttk.Combobox(root, values=['Observer1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox3 = ttk.Combobox(root, values=['Staff1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox4 = ttk.Combobox(root, values=['Other1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+
+        self.reason_combobox0.grid(row=3, column=6, padx=5, pady=0)
+        self.reason_combobox1.grid(row=4, column=6, padx=5, pady=0)
+        self.reason_combobox2.grid(row=5, column=6, padx=5, pady=0)
+        self.reason_combobox3.grid(row=6, column=6, padx=5, pady=0)
+        self.reason_combobox4.grid(row=7, column=6, padx=5, pady=0)
 
     def stop_timer(self):
         if self.running:
@@ -72,7 +84,56 @@ class Timer:
             total_elapsed_time_str = str(timedelta(seconds=total_elapsed_time)).split()[-1]
 
             self.label.config(text=total_elapsed_time_str)
+        
+            # Example placeholders - replace these with actual logic
+            available_time = 12.0  # Total available time for observing in hours
+            used_time = 10.0       # Time used for observing in hours
+
+            # Define a list to store total elapsed times for each category
+            total_elapsed_times = ['','','','','']
+
+            # Calculate elapsed time for each timer category
+            weather_elapsed_time = "TBD"
+            technical_elapsed_time = "TBD"
+            observer_elapsed_time = "TBD"
+            staff_elapsed_time = "TBD"
+            other_elapsed_time = "TBD"
+
+
+            if self.name == 'Weather':
+                weather_elapsed_time = elapsed_time_str
+                total_elapsed_times[0] = elapsed_time_str
+            elif self.name == 'Technical':
+                technical_elapsed_time = elapsed_time_str                
+                total_elapsed_times[1] = elapsed_time_str
+            elif self.name == 'Observer':
+                observer_elapsed_time = elapsed_time_str
+                total_elapsed_times[2] = elapsed_time_str
+            elif self.name == 'Staff':
+                staff_elapsed_time = elapsed_time_str
+                total_elapsed_times[3] = elapsed_time_str
+            elif self.name == 'Other':
+                other_elapsed_time = elapsed_time_str
+                total_elapsed_times[4] = elapsed_time_str
+
+            reason_label_text = f"------------------------------------------------------------\n" \
+                        f"Observing efficiency: {int(used_time/available_time *100)} % \n" \
+                        f"Time used for observing:  {used_time} \n" \
+                        f"Nominal time available for observing: {available_time} \n" \
+                        f"------------------------------------------------------------\n" \
+                        f"Effective Time Lost:   {elapsed_time_str}s\n" \
+                        f"Weather: {weather_elapsed_time}s\n" \
+                        f"Technical: {technical_elapsed_time}s\n" \
+                        f"Observer: {observer_elapsed_time}s\n" \
+                        f"Staff: {staff_elapsed_time}s\n" \
+                        f"Other: {other_elapsed_time}s\n" \
+                        f'------------------------------------------------------------'
+
+
             self.root.after(100, self.update_timer)
+            self.reason_label.config(text=reason_label_text)
+
+            
 
     def log_time(self):
         if self.start_time is not None:
@@ -86,6 +147,26 @@ class Timer:
             self.main_timer.log.append(log_entry)
             self.main_timer.log_text.insert(tk.END, log_entry + "\n")
 
+class WeatherTimer(BaseTimer):
+    def __init__(self, root, main_timer, reason_combobox):
+        super().__init__(root, "Weather", main_timer, reason_combobox)
+
+class TechnicalTimer(BaseTimer):
+    def __init__(self, root, main_timer, reason_combobox):
+        super().__init__(root, "Technical", main_timer, reason_combobox)
+
+class ObserverTimer(BaseTimer):
+    def __init__(self, root, main_timer, reason_combobox):
+        super().__init__(root, "Observer", main_timer, reason_combobox)
+
+class StaffTimer(BaseTimer):
+    def __init__(self, root, main_timer, reason_combobox):
+        super().__init__(root, "Staff", main_timer, reason_combobox)
+
+class OtherTimer(BaseTimer):
+    def __init__(self, root, main_timer, reason_combobox):
+        super().__init__(root, "Other", main_timer, reason_combobox)
+
 class TimerApp:
     def __init__(self, root):
         self.root = root
@@ -96,16 +177,25 @@ class TimerApp:
         self.elapsed_time = timedelta()
         self.log = []
 
+        # Main timer
+        self.label = tk.Label(root, text="TBD", font=("Helvetica", 48))
+        self.label.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
+
         self.timers = []
+        # Dropdown menu
+        self.reason_combobox0 = ttk.Combobox(root, values=['Weather1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox1 = ttk.Combobox(root, values=['Technical1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox2 = ttk.Combobox(root, values=['Observer1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox3 = ttk.Combobox(root, values=['Staff1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox4 = ttk.Combobox(root, values=['Reason1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
 
-        self.reason_combobox = ttk.Combobox(root, values=['Reason1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.timers.append(WeatherTimer(root, self, self.reason_combobox0))
+        self.timers.append(TechnicalTimer(root, self, self.reason_combobox1))
+        self.timers.append(ObserverTimer(root, self, self.reason_combobox2))
+        self.timers.append(StaffTimer(root, self, self.reason_combobox3))
+        self.timers.append(OtherTimer(root, self, self.reason_combobox4))
 
-        self.timers.append(Timer(root, "Weather", self, self.reason_combobox))
-        self.timers.append(Timer(root, "Technical", self, self.reason_combobox))
-        self.timers.append(Timer(root, "Observer", self, self.reason_combobox))
-        self.timers.append(Timer(root, "Staff", self, self.reason_combobox))
-        self.timers.append(Timer(root, "Other", self, self.reason_combobox))
-
+        # Menu bar
         menubar = tk.Menu(root)
         root.config(menu=menubar)
 
@@ -117,9 +207,7 @@ class TimerApp:
         menubar.add_cascade(label="Help", menu=help_menu)
         help_menu.add_command(label="About", command=self.show_help)
 
-        self.label = tk.Label(root, text="No observing time lost", font=("Helvetica", 48))
-        self.label.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
-
+        # Timer buttons
         self.start_button = tk.Button(root, text="Start", command=self.start_timer, bg="green", fg="white")
         self.stop_button = tk.Button(root, text="Stop", command=self.stop_timer, bg="red", fg="white")
         self.log_button = tk.Button(root, text="Log", command=self.log_time)
@@ -135,11 +223,6 @@ class TimerApp:
         for i, timer in enumerate(self.timers):
             timer.create(3 + i)
 
-        self.reason_label = tk.Label(root, text="", font=("Helvetica", 12), justify=tk.LEFT)
-        self.reason_label.grid(row=0, column=4, padx=10, pady=10)
-
-        self.update_reason_label()
-        self.root.after(30000, self.update_reason_label)
 
     def start_timer(self):
         if not self.running:
@@ -188,29 +271,6 @@ class TimerApp:
             self.log.append(log_entry)
             self.log_text.insert(tk.END, log_entry + "\n")
 
-    def update_reason_label(self):
-        total_elapsed_time = sum(timer.elapsed_time.total_seconds() for timer in self.timers)
-        weather_elapsed_time = self.timers[0].elapsed_time.total_seconds()
-        technical_elapsed_time = self.timers[1].elapsed_time.total_seconds()
-        observer_elapsed_time = self.timers[2].elapsed_time.total_seconds()
-        staff_elapsed_time = self.timers[3].elapsed_time.total_seconds()
-        other_elapsed_time = self.timers[4].elapsed_time.total_seconds()
-
-        reason_label_text = f"---------------------------------------\n" \
-                            f"Observing efficiency: (used_time/available_time) \n" \
-                            f"Time used for observing:  (used_time) \n" \
-                            f"Nominal time available for observing: (available_time) \n" \
-                            f"---------------------------------------\n" \
-                            f"Effective Time Lost: {total_elapsed_time / 3600:.0f} hrs {total_elapsed_time % 3600 / 60:.0f} min\n" \
-                            f"Weather: {weather_elapsed_time / 3600:.0f} hrs {weather_elapsed_time % 3600 / 60:.0f} min\n" \
-                            f"Technical: {technical_elapsed_time / 3600:.0f} hrs {technical_elapsed_time % 3600 / 60:.0f} min\n" \
-                            f"Observer: {observer_elapsed_time / 3600:.0f} hrs {observer_elapsed_time % 3600 / 60:.0f} min\n" \
-                            f"Staff: {staff_elapsed_time / 3600:.0f} hrs {staff_elapsed_time % 3600 / 60:.0f} min\n" \
-                            f"Other: {other_elapsed_time / 3600:.0f} hrs {other_elapsed_time % 3600 / 60:.0f} min\n" \
-                            f'---------------------------------------'
-
-        self.reason_label.config(text=reason_label_text)
-        self.root.after(30000, self.update_reason_label)
 
     def show_help(self):
         help_text = "LDT Observing Time Lost Timer\n\n" \
