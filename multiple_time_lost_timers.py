@@ -18,8 +18,6 @@ twilight_12_deg_evening = observer.next_setting(ephem.Sun(), use_center=True)
 # Calculate the time duration between the twilights
 duration = twilight_12_deg_morning - twilight_12_deg_evening
 
-print(duration)
-
 # Convert the duration to hours, minutes, and seconds
 hours, remainder = divmod(duration * 24 * 3600, 3600)
 minutes, seconds = divmod(remainder, 60)
