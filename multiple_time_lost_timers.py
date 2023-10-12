@@ -3,6 +3,27 @@ from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import messagebox
 from datetime import datetime, timedelta
+import ephem
+
+# Define latitude and longitude
+observer = ephem.Observer()
+observer.lat = '34.7444'
+observer.long = '-111.4222'  
+
+# Compute the 12-degree twilights for the next two days
+today = ephem.now()
+twilight_12_deg_morning = observer.next_rising(ephem.Sun(), use_center=True)
+twilight_12_deg_evening = observer.next_setting(ephem.Sun(), use_center=True)
+
+# Calculate the time duration between the twilights
+duration = twilight_12_deg_morning - twilight_12_deg_evening
+
+print(duration)
+
+# Convert the duration to hours, minutes, and seconds
+hours, remainder = divmod(duration * 24 * 3600, 3600)
+minutes, seconds = divmod(remainder, 60)
+duration = f"{int(hours)} h {int(minutes)} m {int(seconds)} s"
 
 class BaseTimer:
     def __init__(self, root, name, main_timer, reason_combobox):
@@ -34,17 +55,6 @@ class BaseTimer:
         self.stop_button.grid(row=row_index, column=3, padx=5, pady=0)
         self.log_button.grid(row=row_index, column=5, padx=5, pady=0)
 
-        self.reason_combobox0 = ttk.Combobox(root, values=['Weather1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
-        self.reason_combobox1 = ttk.Combobox(root, values=['Technical1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
-        self.reason_combobox2 = ttk.Combobox(root, values=['Observer1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
-        self.reason_combobox3 = ttk.Combobox(root, values=['Staff1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
-        self.reason_combobox4 = ttk.Combobox(root, values=['Other1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
-
-        self.reason_combobox0.grid(row=3, column=4, padx=82, pady=0)
-        self.reason_combobox1.grid(row=4, column=4, padx=82, pady=0)
-        self.reason_combobox2.grid(row=5, column=4, padx=82, pady=0)
-        self.reason_combobox3.grid(row=6, column=4, padx=82, pady=0)
-        self.reason_combobox4.grid(row=7, column=4, padx=82, pady=0)
 
     def stop_timer(self):
         if self.running:
@@ -78,13 +88,19 @@ class BaseTimer:
         if self.running:
             current_time = datetime.now()
             elapsed_time = self.elapsed_time + (current_time - self.start_time)
-            elapsed_time_str = str(elapsed_time).split()[-1]
+
+            # Format the elapsed_time_str to display in HH:MM:SS.SS format
+            hours, remainder = divmod(elapsed_time.total_seconds(), 3600)
+            minutes, seconds = divmod(remainder, 60)
+            milliseconds = elapsed_time.microseconds // 10000  # Two decimal places for milliseconds
+
+            elapsed_time_str = f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}.{milliseconds:02d}"
 
             total_elapsed_time = sum(timer.elapsed_time.total_seconds() for timer in self.main_timer.timers) + elapsed_time.total_seconds()
             total_elapsed_time_str = str(timedelta(seconds=total_elapsed_time)).split()[-1]
 
             self.label.config(text=total_elapsed_time_str)
-        
+    
             # Example placeholders - replace these with actual logic
             available_time = 12.0  # Total available time for observing in hours
             used_time = 10.0       # Time used for observing in hours
@@ -98,7 +114,6 @@ class BaseTimer:
             observer_elapsed_time = "TBD"
             staff_elapsed_time = "TBD"
             other_elapsed_time = "TBD"
-
 
             if self.name == 'Weather':
                 weather_elapsed_time = elapsed_time_str
@@ -117,18 +132,17 @@ class BaseTimer:
                 total_elapsed_times[4] = elapsed_time_str
 
             reason_label_text = f"------------------------------------------------------------\n" \
-                        f"Observing efficiency: {int(used_time/available_time *100)} % \n" \
-                        f"Time used for observing:  {used_time} \n" \
-                        f"Nominal time available for observing: {available_time} \n" \
-                        f"------------------------------------------------------------\n" \
-                        f"Effective Time Lost:   {elapsed_time_str}s\n" \
-                        f"Weather: {weather_elapsed_time}s\n" \
-                        f"Technical: {technical_elapsed_time}s\n" \
-                        f"Observer: {observer_elapsed_time}s\n" \
-                        f"Staff: {staff_elapsed_time}s\n" \
-                        f"Other: {other_elapsed_time}s\n" \
-                        f'------------------------------------------------------------'
-
+                    f"Observing efficiency: {int(used_time/available_time *100)} % \n" \
+                    f"Time used for observing:  {used_time} \n" \
+                    f"Nominal time available for observing: {duration} \n" \
+                    f"------------------------------------------------------------\n" \
+                    f"Effective Time Lost:   {elapsed_time_str}s\n" \
+                    f"Weather: {weather_elapsed_time}s\n" \
+                    f"Technical: {technical_elapsed_time}s\n" \
+                    f"Observer: {observer_elapsed_time}s\n" \
+                    f"Staff: {staff_elapsed_time}s\n" \
+                    f"Other: {other_elapsed_time}s\n" \
+                    f'------------------------------------------------------------'
 
             self.root.after(100, self.update_timer)
             self.reason_label.config(text=reason_label_text)
@@ -185,7 +199,13 @@ class TimerApp:
         self.reason_combobox1 = ttk.Combobox(root, values=['Technical1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
         self.reason_combobox2 = ttk.Combobox(root, values=['Observer1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
         self.reason_combobox3 = ttk.Combobox(root, values=['Staff1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
-        self.reason_combobox4 = ttk.Combobox(root, values=['Reason1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+        self.reason_combobox4 = ttk.Combobox(root, values=['Other1', 'Reason2', 'Reason3', 'ReasonN-1', 'ReasonN'])
+
+        self.reason_combobox0.grid(row=3, column=4, padx=82, pady=0)
+        self.reason_combobox1.grid(row=4, column=4, padx=82, pady=0)
+        self.reason_combobox2.grid(row=5, column=4, padx=82, pady=0)
+        self.reason_combobox3.grid(row=6, column=4, padx=82, pady=0)
+        self.reason_combobox4.grid(row=7, column=4, padx=82, pady=0)
 
         self.timers.append(WeatherTimer(root, self, self.reason_combobox0))
         self.timers.append(TechnicalTimer(root, self, self.reason_combobox1))
