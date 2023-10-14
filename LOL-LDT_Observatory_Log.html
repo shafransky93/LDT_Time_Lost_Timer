@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LOL - LDT Observatory Log</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* CSS class for the smaller select box */
+        .smaller-select {
+            width: 200px;
+            height: 30px;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0;
+        }
+
+        textarea {
+            resize: vertical; /* Allow the textarea to be resized vertically */
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+		
+		/* Container for the buttons */
+		.log-entry-text-container .edit-buttons {
+			display: flex;
+		}
+
+		/* Style for the Edit and Done buttons */
+		.log-entry-text-container .edit-buttons button {
+			flex: 1;
+			margin-right: 5px;
+		}
+
+		/* Style for the button container */
+		.log-entry-text-container button {
+			display: inline-block;
+			margin-right: 5px; /* Add some spacing between buttons */
+		}
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .log-entry-container {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 7px;
+            background-color: #fff;
+            white-space: pre-line; /* Allow line breaks in the text */
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Title text size for both light and dark modes */
+        #output-title {
+            font-size: 24px; /* Adjust the font size as needed */
+        }
+
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #121212;
+            color: #000;
+
+            /* Title text in dark mode */
+            #output-title {
+                color: #fff; /* Set the title text color to white */
+            }
+        }
+
+        .dark-mode button {
+            background-color: #ccc;
+            color: #121212;
+        }
+
+        .dark-mode button:hover {
+            background-color: #999; /* Change the button color on hover in dark mode */
+        }
+
+        .dark-mode .log-entry-container {
+            background-color: #333;
+            color: #fff;
+        }
+		
+		/* CSS for the sidebar */
+		#sidebar {
+			width: 250px;
+			background-color: #f0f0f0;
+			padding: 20px;
+			position: fixed;
+			top: 0;
+			bottom: 0;
+			right: -250px; /* Hide the sidebar by default */
+			overflow-y: auto;
+			border-right: 1px solid #ddd;
+		}
+
+
+		/* Style for the "People Present" heading */
+		#sidebar h2 {
+			margin-bottom: 10px;
+		}
+
+		/* Style for the list of people */
+		#sidebar ul {
+			list-style-type: none; /* Remove bullet points */
+			padding: 0;
+		}
+
+		/* Style for list items */
+		#sidebar li {
+			margin-bottom: 5px;
+		}
+
+    </style>
+</head>
+
+<body>
+<div class="sidebar" id="sidebar">
+	<h2>People Present</h2>
+    <div id="sidebarContent">
+		<button id="toggleSidebarButton" onclick="toggleSidebar()">Hide Sidebar</button>
+        <!-- People present list will be inserted here -->
+    </div>
+</div>
+<div class="container">
+    <button id="darkModeButton" onclick="toggleDarkMode()">Dark Mode</button>
+    <h1 id="output-title">LDT Observatory Log</h1>
+
+    <form onsubmit="processInput(); return false;">
+
+		<label for="peopleList">People Present:</label>
+		<select id="peopleList">
+			<option value="Benjamin">Benjamin Shafranksy</option>
+			<option value="Cecilia">Cecilia Siqueiros</option>
+			<option value="Erin">Erin Maier</option>
+			<option value="Ishara">Ishara Nisley</option>
+		</select>
+		<button id="addPersonButton" onclick="addPerson()">Add Person</button>
+		<button id="removePersonButton" onclick="removePerson()">Remove Person</button>
+
+        <label for="userInput">User:</label>
+        <!-- Apply the smaller-select class to the select box -->
+        <select id="userInput" onchange="updateTitleOnFirstSelection(this)" class="smaller-select">
+            <option value="Benjamin Shafranksy">Benjamin Shafranksy</option>
+            <option value="Cecilia Siqueiros">Cecilia Siqueiros</option>
+            <option value="Erin Maier">Erin Maier</option>
+            <option value="Ishara Nisley">Ishara Nisley</option>
+        </select>
+        <button id="setUserButton" onclick="setLogUser()">Set User</button>
+        <br>
+        <label for="categoryInput">Category:</label>
+        <select id="categoryInput">
+            <option value="Startup">Startup</option>
+            <option value="Shutdown">Shutdown</option>
+            <option value="Science">Science</option>
+            <option value="Issue">Issue</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <!-- Add the specificCategory element -->
+        <div id="specificCategoryCheckbox">
+            <input type="checkbox" id="specificCategory">
+        </div>
+
+		<div id="timer-display">00:00:00</div>
+		<button id="startTimerButton">Start Timer</button>
+		<button id="stopTimerButton">Stop Timer</button>
+
+        <label for="textInput">Enter Text:</label>
+        <textarea id="textInput" oninput="adjustTextareaHeight();"></textarea>
+        <br>
+        <label for="imageInput">Upload Image:</label>
+        <input type="file" id="imageInput" accept="image/*">
+        <button type="submit">Submit</button>
+    </form>
+
+    <div class="log-entry-container" id="output"></div>
+</div>
+<script>
+    var userSet = false; // Variable to track whether the user has been set
+    var selectedCategory = ""; // Variable to store the selected category
+    var currentEditLogEntry = null; // Variable to store the currently edited log entry
+
+    function updateTitleOnFirstSelection(selectElement) {
+        if (!userSet) {
+            var user = selectElement.value;
+            var outputTitle = document.getElementById("output-title");
+            outputTitle.textContent += ' [' + user + ']';
+            userSet = true;
+            selectedCategory = document.getElementById("categoryInput").value; // Store the selected category
+        }
+    }
+
+    function setUser() {
+        var user = document.getElementById("userInput").value;
+        var outputTitle = document.getElementById("output-title");
+        outputTitle.textContent = outputTitle.textContent.replace(/\[.*\]/, ''); // Remove existing user information
+        outputTitle.textContent += ' [' + user + ']';
+        userSet = true;
+    }
+
+    function processInput() {
+        var inputText = document.getElementById("textInput").value;
+        var imageInput = document.getElementById("imageInput");
+        var outputElement = document.getElementById("output");
+        var currentTime = new Date();
+        var options = { timeZone: 'UTC', hour12: false };
+        var utcTime = currentTime.toLocaleTimeString('en-US', options);
+
+        var logEntryContainer = document.createElement("div");
+        logEntryContainer.className = "log-entry-container";
+
+        var logEntryTextContainer = document.createElement("div");
+        logEntryTextContainer.className = "log-entry-text-container";
+        logEntryContainer.appendChild(logEntryTextContainer);
+
+        var logEntryText = document.createElement("p");
+        logEntryText.className = "log-entry-text";
+		logEntryText.contentEditable = true;
+
+        var categoryValue = selectedCategory || document.getElementById("categoryInput").value;
+
+        logEntryText.innerHTML = utcTime + ' [' + categoryValue + '] ' + inputText;
+
+        // Check if the checkbox is checked
+        var specificCategoryCheckbox = document.getElementById("specificCategory");
+        if (specificCategoryCheckbox.checked) {
+            logEntryText.innerHTML += ' Procedure complete';
+        }
+
+        logEntryTextContainer.appendChild(logEntryText);
+
+        if (imageInput.files.length > 0) {
+            var image = imageInput.files[0];
+            var imageElement = document.createElement("img");
+            imageElement.src = URL.createObjectURL(image);
+            imageElement.alt = "Uploaded Image";
+
+            logEntryContainer.appendChild(imageElement);
+            logEntryText.innerHTML += '<br>Image uploaded: ' + image.name;
+        }
+
+        outputElement.insertBefore(logEntryContainer, outputElement.firstChild);
+
+        document.getElementById("textInput").value = "";
+        document.getElementById("imageInput").value = "";
+
+        // Reset the checkbox to unchecked
+        specificCategoryCheckbox.checked = false;
+    }
+
+    // Define the adjustTextareaHeight function
+    function adjustTextareaHeight() {
+        var textarea = document.getElementById("textInput");
+        textarea.style.height = "auto"; // Reset the height to auto to calculate the correct scroll height
+        textarea.style.height = (textarea.scrollHeight) + "px"; // Set the height to the scroll height
+    }
+
+    // Add this code after the HTML elements are loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        var categoryInput = document.getElementById("categoryInput");
+
+        categoryInput.onchange = function () {
+            if (categoryInput.value === "Startup" || categoryInput.value === "Shutdown") {
+                // No need for specificCategoryCheckbox
+            }
+        };
+    });
+
+    // Add this code after the HTML elements are loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        var categoryInput = document.getElementById("categoryInput");
+        var specificCategoryCheckbox = document.getElementById("specificCategory");
+
+        categoryInput.onchange = function () {
+            if (categoryInput.value === "Startup" || categoryInput.value === "Shutdown") {
+                specificCategoryCheckbox.style.display = "block";
+            } else {
+                specificCategoryCheckbox.style.display = "none";
+            }
+        };
+    });
+
+	function toggleDarkMode() {
+			var body = document.body;
+			var darkModeButton = document.getElementById("darkModeButton");
+
+			body.classList.toggle("dark-mode");
+
+			if (body.classList.contains("dark-mode")) {
+				darkModeButton.textContent = "Light Mode";
+			} else {
+				darkModeButton.textContent = "Dark Mode";
+			}
+		}
+		
+	var peoplePresent = []; // Array to store people present
+	
+	function updatePeoplePresent() {
+		// Update the list of people present inside the "sidebarContent" container
+		var sidebarContent = document.getElementById("sidebarContent");
+		sidebarContent.innerHTML = "<button id='toggleSidebarButton' onclick='toggleSidebar()'>Hide Sidebar</button>";
+
+		var ul = document.createElement("ul");
+		peoplePresent.forEach(function (person) {
+			var li = document.createElement("li");
+			li.textContent = person;
+			ul.appendChild(li);
+		});
+
+		sidebarContent.appendChild(ul);
+	}
+
+	function addPerson() {
+		var selectedPerson = document.getElementById("peopleList").value;
+		if (selectedPerson && !peoplePresent.includes(selectedPerson)) {
+			peoplePresent.push(selectedPerson);
+			updatePeoplePresent(); // Update the sidebar content after adding the person
+
+        // Add the person's name to the log entry text
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += selectedPerson + " arrival. ";
+		}
+	}
+
+	function removePerson() {
+		var selectedPerson = document.getElementById("peopleList").value;
+		if (selectedPerson && peoplePresent.includes(selectedPerson)) {
+			var index = peoplePresent.indexOf(selectedPerson);
+			peoplePresent.splice(index, 1);
+			updatePeoplePresent(); // Update the sidebar content after removing the person
+
+        // Add the person's name to the log entry text
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += selectedPerson + " departure. ";
+		}
+	}
+
+	function setLogUser() {
+		var user = document.getElementById("userInput").value;
+		var outputTitle = document.getElementById("output-title");
+		outputTitle.textContent = outputTitle.textContent.replace(/\[.*\]/, ''); // Remove existing user information
+		outputTitle.textContent += ' [' + user + ']';
+		userSet = true;
+
+        // Add the person's name to the log entry text
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += user + " selected as session user. ";
+
+   	}
+
+	function toggleSidebar() {
+		var sidebar = document.getElementById("sidebar");
+		var toggleSidebarButton = document.getElementById("toggleSidebarButton");
+
+		if (sidebar.style.right === "0px") {
+			sidebar.style.right = "-250px"; // Hide the sidebar
+			toggleSidebarButton.textContent = "Show Sidebar";
+		} else {
+			sidebar.style.right = "0px"; // Show the sidebar
+			toggleSidebarButton.textContent = "Hide Sidebar";
+		}
+	}
+	
+	// Initialize the timer variables
+	var timer;
+	var startTime;
+
+	function startTimer() {
+		startTime = new Date().getTime();
+		timer = setInterval(updateTimer, 1000); // Update the timer every second (1000 milliseconds)
+
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += "Timer started.";
+	}
+
+	function updateTimer() {
+		var currentTime = new Date().getTime();
+		var elapsed = currentTime - startTime;
+		var hours = Math.floor(elapsed / 3600000); // 1 hour = 3600000 milliseconds
+		var minutes = Math.floor((elapsed % 3600000) / 60000); // 1 minute = 60000 milliseconds
+		var seconds = Math.floor((elapsed % 60000) / 1000); // 1 second = 1000 milliseconds
+
+		// Format the time as HH:MM:SS
+		var formattedTime = padZero(hours) + ":" + padZero(minutes) + ":" + padZero(seconds);
+
+		// Update the timer display
+		document.getElementById("timer-display").textContent = formattedTime;
+	}
+
+	function padZero(value) {
+		return value < 10 ? "0" + value : value;
+	}
+
+	// Add event listeners to start and stop the timer
+	document.getElementById("startTimerButton").addEventListener("click", startTimer);
+	document.getElementById("stopTimerButton").addEventListener("click", stopTimer);
+
+	function stopTimer() {
+		clearInterval(timer); // Stop the timer
+
+		var currentTime = new Date().getTime();
+		var elapsed = currentTime - startTime;
+		var hours = Math.floor(elapsed / 3600000); // 1 hour = 3600000 milliseconds
+		var minutes = Math.floor((elapsed % 3600000) / 60000); // 1 minute = 60000 milliseconds
+		var seconds = Math.floor((elapsed % 60000) / 1000); // 1 second = 1000 milliseconds
+
+		// Format the time as HH:MM:SS
+		var formattedTime = padZero(hours) + ":" + padZero(minutes) + ":" + padZero(seconds);
+
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += "Timer stopped, " + formattedTime + " lost. ";
+	}
+</script>
+</body>
+</html>
