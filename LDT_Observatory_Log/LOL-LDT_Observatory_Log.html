@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LOL - LDT Observatory Log</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #logCategoryForm {
+            display: block;
+        }
+		
+		#objectivesSubheader {
+			text-align: left; /* Align the "Objectives" label to the left */
+		}
+
+		#objectivesTextBlock {
+			white-space: pre-line; /* Allow line breaks in the text */
+			text-align: left; /* Align the objectives text to the left */
+		}
+
+		/* Add styling to the session type form */
+		#logCategoryForm {
+			margin-top: 20px;
+			border: 1px solid #ddd;
+			padding: 20px;
+			background-color: #f9f9f9;
+		}
+
+		#logCategoryForm label {
+			display: block;
+			margin-top: 10px;
+			font-weight: bold;
+		}
+
+		#logCategoryForm input[type="radio"] {
+			margin-right: 10px;
+		}
+
+		#logCategoryForm button {
+			padding: 10px 20px;
+			background-color: #007bff;
+			color: #fff;
+			border: none;
+			cursor: pointer;
+			margin-top: 10px;
+		}
+
+		#logCategoryForm button:hover {
+			background-color: #0056b3;
+		}
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* CSS class for the smaller select box */
+        .smaller-select {
+            width: 200px;
+            height: 30px;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0;
+        }
+
+        textarea {
+            resize: vertical; /* Allow the textarea to be resized vertically */
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+		
+		/* Container for the buttons */
+		.log-entry-text-container .edit-buttons {
+			display: flex;
+		}
+
+		/* Style for the Edit and Done buttons */
+		.log-entry-text-container .edit-buttons button {
+			flex: 1;
+			margin-right: 5px;
+		}
+
+		/* Style for the button container */
+		.log-entry-text-container button {
+			display: inline-block;
+			margin-right: 5px; /* Add some spacing between buttons */
+		}
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .log-entry-container {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 7px;
+            background-color: #fff;
+            white-space: pre-line; /* Allow line breaks in the text */
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Title text size for both light and dark modes */
+        #output-title {
+            font-size: 24px; /* Adjust the font size as needed */
+        }
+
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #121212;
+            color: #000;
+
+            /* Title text in dark mode */
+            #output-title {
+                color: #fff; /* Set the title text color to white */
+            }
+			#objectivesSubheader {
+				color: #fff;
+			}
+        }
+
+        .dark-mode button {
+            background-color: #ccc;
+            color: #121212;
+        }
+
+        .dark-mode button:hover {
+            background-color: #999; /* Change the button color on hover in dark mode */
+        }
+
+        .dark-mode .log-entry-container {
+            background-color: #333;
+            color: #fff;
+        }
+				
+		/* CSS for the sidebar */
+		#sidebar {
+			width: 250px;
+			background-color: #f0f0f0;
+			padding: 20px;
+			position: fixed;
+			top: 0;
+			bottom: 0;
+			right: -250px; /* Hide the sidebar by default */
+			overflow-y: auto;
+			border-right: 1px solid #ddd;
+		}
+
+
+		/* Style for the "People Present" heading */
+		#sidebar h2 {
+			margin-bottom: 10px;
+		}
+
+		/* Style for the list of people */
+		#sidebar ul {
+			list-style-type: none; /* Remove bullet points */
+			padding: 0;
+		}
+
+		/* Style for list items */
+		#sidebar li {
+			margin-bottom: 5px;
+		}
+
+    </style>
+</head>
+
+<body>
+<div class="sidebar" id="sidebar">
+	<h2>Present at LDT</h2>
+    <div id="sidebarContent">
+		<button id="toggleSidebarButton" onclick="toggleSidebar()">Hide Sidebar</button>
+        <!-- People present list will be inserted here -->
+    </div>
+</div>
+<div class="container">
+    <button id="darkModeButton" onclick="toggleDarkMode()">Dark Mode</button>
+	<button id="toggleFormButton" onclick="toggleForm()">Hide Setup</button>
+    <h1 id="output-title">LDT Observatory Log</h1>
+	<h4 id="objectivesSubheader">Objectives:</h4>
+	<div id="objectivesTextBlock" style="display: none;"></div>
+    <!-- Add radio buttons for Science, Engineering, and Science/Engineering -->
+	<form id="logCategoryForm" onsubmit="processInput(); return false;">
+		<label>Session Type:</label>
+		<input type="radio" name="category" value="Science"> Science
+		<input type="radio" name="category" value="Engineering"> Engineering
+		<input type="radio" name="category" value="Science/Engineering"> Science/Engineering
+		<input type="radio" name="category" value="Public Programs"> Public Programs
+		<input type="radio" name="category" value="Software"> Software
+		<input type="radio" name="category" value="Maintenance"> Maintenance
+
+		<!-- Add the new radio buttons here -->
+		<label>Shift:</label>
+		<input type="radio" name="shift" value="A"> A
+		<input type="radio" name="shift" value="B"> B
+		<input type="radio" name="shift" value="C"> C
+		<input type="radio" name="shift" value="Day"> Day
+		<div></div>
+		<button id="setSessionTypeButton" onclick="setSessionType()">Set Session Type</button>
+        <label for="userInput">User:</label>
+        <!-- Apply the smaller-select class to the select box -->
+        <select id="userInput" onchange="updateTitleOnFirstSelection(this)" class="smaller-select">
+            <option value="Benjamin Shafranksy">Benjamin Shafranksy</option>
+            <option value="Cecilia Siqueiros">Cecilia Siqueiros</option>
+            <option value="Erin Maier">Erin Maier</option>
+            <option value="Ishara Nisley">Ishara Nisley</option>
+        </select>
+        <button id="setUserButton" onclick="setLogUser()">Set User</button>
+		<label for="objectivesInput">Objectives:</label>
+		<textarea id="objectivesInput" oninput="adjustTextareaHeight();"></textarea>
+		<button id="submitObjectivesButton" onclick="submitObjectives()">Submit Objectives</button>
+
+	</form>
+
+    <form onsubmit="processInput(); return false;">
+ 
+		<label for="peopleList">People Present:</label>
+		<select id="peopleList">
+			<option value="Benjamin">Benjamin Shafranksy</option>
+			<option value="Cecilia">Cecilia Siqueiros</option>
+			<option value="Erin">Erin Maier</option>
+			<option value="Ishara">Ishara Nisley</option>
+			<option value="Evelyn">Evelyn Starling</option>
+			
+		</select>
+		<button id="addPersonButton" onclick="addPerson()">Add Person</button>
+		<button id="removePersonButton" onclick="removePerson()">Remove Person</button>
+
+        <br>
+        <label for="categoryInput">Category:</label>
+        <select id="categoryInput">
+            <option value="Startup">Startup</option>
+            <option value="Shutdown">Shutdown</option>
+            <option value="Science">Science</option>
+            <option value="Issue">Issue</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <!-- Add the specificCategory element -->
+        <div id="specificCategoryCheckbox">
+            <input type="checkbox" id="specificCategory">
+        </div>
+
+		<label for="timerReason">Timer Reason:</label>
+		<select id="timerReason">
+			<option value="Weather">Weather</option>
+			<option value="Technical">Technical</option>
+			<option value="Observer">Observer</option>
+			<option value="Staff">Staff</option>
+			<option value="Other">Other</option>
+			
+		</select>
+		<button id="startTimerButton">Start Timer</button>
+		<button id="stopTimerButton">Stop Timer</button>
+		
+		<div id="timer-log">
+			<h3><div>Time lost:</div><div id="timer-display">00:00:00</div></h3>
+		</div>
+
+        <label for="textInput">Enter Text:</label>
+        <textarea id="textInput" oninput="adjustTextareaHeight();"></textarea>
+        <br>
+        <label for="imageInput">Upload Image:</label>
+        <input type="file" id="imageInput" accept="image/*">
+        <button type="submit">Submit</button>
+    </form>
+
+    <div class="log-entry-container" id="output"></div>
+</div>
+<script>
+    var userSet = false; // Variable to track whether the user has been set
+    var selectedCategory = ""; // Variable to store the selected category
+    var currentEditLogEntry = null; // Variable to store the currently edited log entry
+
+    function updateTitleOnFirstSelection(selectElement) {
+        if (!userSet) {
+            var user = selectElement.value;
+            var sessionType = document.querySelector('input[name="category"]:checked').value;
+            var outputTitle = document.getElementById("output-title");
+            var title = sessionType + ' LDT Observatory Log [' + user + ']';
+            document.title = title; // Update the page title
+            outputTitle.textContent = title; // Update the H1 element
+            userSet = true;
+            selectedCategory = sessionType;
+        }
+    }
+
+    function setUser() {
+        var user = document.getElementById("userInput").value;
+        var outputTitle = document.getElementById("output-title");
+        outputTitle.textContent = outputTitle.textContent.replace(/\[.*\]/, ''); // Remove existing user information
+        outputTitle.textContent += ' [' + user + ']';
+        userSet = true;
+    }
+
+	function setSessionType() {
+		var selectedSessionType = document.querySelector('input[name="category"]:checked').value;
+		var selectedShift = document.querySelector('input[name="shift"]:checked');
+		var outputTitle = document.getElementById("output-title");
+		var userNameMatch = outputTitle.textContent.match(/\[(.*?)\]/);
+		var user = userNameMatch ? userNameMatch[1] : "";
+		var title = selectedSessionType  + " Session - " + ' LDT Observatory Log' + (user ? '- [' + user + ']' : '');
+
+		if (selectedShift) {
+			title += ' - '+ selectedShift.value+' Shift';
+		}
+
+		// Update the page title
+		document.title = title;
+
+		outputTitle.textContent = title; // Update the H1 element
+		selectedCategory = selectedSessionType;
+	}
+
+	function processInput() {
+		var inputText = document.getElementById("textInput").value;
+		var imageInput = document.getElementById("imageInput");
+		var categoryInput = document.getElementById("categoryInput");
+		var selectedCategory = categoryInput.options[categoryInput.selectedIndex].value;
+		var currentTime = new Date();
+		var options = { timeZone: 'UTC', hour12: false };
+		var utcTime = currentTime.toLocaleTimeString('en-US', options);
+
+		// Check if a category is selected
+		if (!selectedCategory) {
+			alert("Please select a category before submitting.");
+			return; // Prevent submission if category is not selected
+		}
+
+		var logEntryContainer = document.createElement("div");
+		logEntryContainer.className = "log-entry-container";
+
+		var logEntryTextContainer = document.createElement("div");
+		logEntryTextContainer.className = "log-entry-text-container";
+		logEntryContainer.appendChild(logEntryTextContainer);
+	
+		var logEntryText = document.createElement("p");
+		logEntryText.className = "log-entry-text";
+		logEntryText.contentEditable = true;
+
+		logEntryText.innerHTML = utcTime + ' [' + selectedCategory + ']'+': ' + inputText;
+
+		// Check if the checkbox is checked
+		var specificCategoryCheckbox = document.getElementById("specificCategory");
+		if (specificCategoryCheckbox.checked) {
+			logEntryText.innerHTML += ' Procedure complete';
+		}
+
+		logEntryTextContainer.appendChild(logEntryText);
+
+		if (imageInput.files.length > 0) {
+			var image = imageInput.files[0];
+			var imageElement = document.createElement("img");
+			imageElement.src = URL.createObjectURL(image);
+			imageElement.alt = "Uploaded Image";
+
+			logEntryContainer.appendChild(imageElement);
+			logEntryText.innerHTML += '<br>Image uploaded: ' + image.name;
+		}
+
+		document.getElementById("output").prepend(logEntryContainer);
+
+		document.getElementById("textInput").value = "";
+		document.getElementById("imageInput").value = "";
+
+		// Reset the checkbox to unchecked
+		specificCategoryCheckbox.checked = false;
+	}
+
+    // Define the adjustTextareaHeight function
+    function adjustTextareaHeight() {
+        var textarea = document.getElementById("textInput");
+        textarea.style.height = "auto"; // Reset the height to auto to calculate the correct scroll height
+        textarea.style.height = (textarea.scrollHeight) + "px"; // Set the height to the scroll height
+    }
+
+    // Add this code after the HTML elements are loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        var categoryInput = document.getElementById("categoryInput");
+
+        categoryInput.onchange = function () {
+            if (categoryInput.value === "Startup" || categoryInput.value === "Shutdown") {
+				
+                // No need for specificCategoryCheckbox
+            }
+        };
+    });
+
+    // Add this code after the HTML elements are loaded
+    document.addEventListener("DOMContentLoaded", function () {
+        var categoryInput = document.getElementById("categoryInput");
+        var specificCategoryCheckbox = document.getElementById("specificCategory");
+
+        categoryInput.onchange = function () {
+            if (categoryInput.value === "Startup" || categoryInput.value === "Shutdown") {
+                specificCategoryCheckbox.style.display = "block";
+            } else {
+                specificCategoryCheckbox.style.display = "none";
+            }
+        };
+    });
+
+	function toggleDarkMode() {
+			var body = document.body;
+			var darkModeButton = document.getElementById("darkModeButton");
+
+			body.classList.toggle("dark-mode");
+
+			if (body.classList.contains("dark-mode")) {
+				darkModeButton.textContent = "Light Mode";
+			} else {
+				darkModeButton.textContent = "Dark Mode";
+			}
+		}
+		
+	var peoplePresent = []; // Array to store people present
+	
+	function updatePeoplePresent() {
+		// Update the list of people present inside the "sidebarContent" container
+		var sidebarContent = document.getElementById("sidebarContent");
+		sidebarContent.innerHTML = "<button id='toggleSidebarButton' onclick='toggleSidebar()'>Hide Sidebar</button>";
+
+		var ul = document.createElement("ul");
+		peoplePresent.forEach(function (person) {
+			var li = document.createElement("li");
+			li.textContent = person;
+			ul.appendChild(li);
+		});
+
+		sidebarContent.appendChild(ul);
+	}
+
+	function addPerson() {
+		var selectedPerson = document.getElementById("peopleList").value;
+		if (selectedPerson && !peoplePresent.includes(selectedPerson)) {
+			peoplePresent.push(selectedPerson);
+			updatePeoplePresent(); // Update the sidebar content after adding the person
+
+        // Add the person's name to the log entry text
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value +=  selectedPerson + " arrival. ";
+		}
+	}
+
+	function removePerson() {
+		var selectedPerson = document.getElementById("peopleList").value;
+		if (selectedPerson && peoplePresent.includes(selectedPerson)) {
+			var index = peoplePresent.indexOf(selectedPerson);
+			peoplePresent.splice(index, 1);
+			updatePeoplePresent(); // Update the sidebar content after removing the person
+
+        // Add the person's name to the log entry text
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += selectedPerson + " departure. ";
+		}
+	}
+
+	function setLogUser() {
+		var user = document.getElementById("userInput").value;
+
+        // Add the person's name to the log entry text
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += user + " selected as session user. ";
+
+
+		var outputTitle = document.getElementById("output-title");
+		outputTitle.textContent = outputTitle.textContent.replace(/\[.*\]/, ''); // Remove existing user information
+		outputTitle.textContent += ' [' + user + ']';
+		userSet = true;
+
+
+   	}
+
+	function submitObjectives() {
+		var objectivesText = document.getElementById("objectivesInput").value;
+    
+		if (objectivesText) {
+			// Display objectives as a sub-header of the main title
+			var objectivesSubheader = document.getElementById("objectivesSubheader");
+			objectivesSubheader.style.display = "block"; // Show the sub-header
+			objectivesSubheader.textContent = "Objectives: " + objectivesText;
+		}
+	}
+
+	function toggleSidebar() {
+		var sidebar = document.getElementById("sidebar");
+		var toggleSidebarButton = document.getElementById("toggleSidebarButton");
+
+		if (sidebar.style.right === "0px") {
+			sidebar.style.right = "-250px"; // Hide the sidebar
+			toggleSidebarButton.textContent = "Show Sidebar";
+		} else {
+			sidebar.style.right = "0px"; // Show the sidebar
+			toggleSidebarButton.textContent = "Hide Sidebar";
+		}
+	}
+		
+	// Initialize the timer variables
+	var timer;
+	var startTime;
+
+    // Modify the startTimer function
+    function startTimer() {
+        clearInterval(selectedTimer.timer); // Clear the previous timer
+
+        startTime = new Date().getTime();
+        timer = setInterval(updateTimer, 1000);
+
+        var logEntryText = document.getElementById("textInput");
+        logEntryText.value += timerReason.value + " timer started.";
+
+        // Set the selected timer to the new timer
+        selectedTimer.timer = timer;
+    }
+
+	function updateTimer() {
+		var currentTime = new Date().getTime();
+		var elapsed = currentTime - startTime;
+		var hours = Math.floor(elapsed / 3600000); // 1 hour = 3600000 milliseconds
+		var minutes = Math.floor((elapsed % 3600000) / 60000); // 1 minute = 60000 milliseconds
+		var seconds = Math.floor((elapsed % 60000) / 1000); // 1 second = 1000 milliseconds
+
+		// Format the time as HH:MM:SS
+		var formattedTime = padZero(hours) + ":" + padZero(minutes) + ":" + padZero(seconds);
+
+		// Update the timer display
+		var timerDisplay = document.getElementById("timer-display");
+		if (timerDisplay) {
+			timerDisplay.textContent = formattedTime;
+		}
+	}
+
+
+	function padZero(value) {
+		return value < 10 ? "0" + value : value;
+	}
+
+	// Add event listeners to start and stop the timer
+	document.getElementById("startTimerButton").addEventListener("click", startTimer);
+	document.getElementById("stopTimerButton").addEventListener("click", stopTimer);
+
+    // Create a variable to track the selected timer
+    var selectedTimer = {
+        timer: null,
+        displayElement: document.getElementById("selectedTimer")
+    };
+
+    // Update the selected timer
+    function updateSelectedTimer(formattedTime) {
+        selectedTimer.displayElement.textContent = formattedTime;
+    }
+	
+	// Modify the stopTimer function
+	function stopTimer() {
+		clearInterval(timer); // Stop the timer
+
+		var currentTime = new Date().getTime();
+		var elapsed = currentTime - startTime;
+		var hours = Math.floor(elapsed / 3600000); // 1 hour = 3600000 milliseconds
+		var minutes = Math.floor((elapsed % 3600000) / 60000); // 1 minute = 60000 milliseconds
+		var seconds = Math.floor((elapsed % 60000) / 1000); // 1 second = 1000 milliseconds
+
+		// Format the time as HH:MM:SS
+		var formattedTime = padZero(hours) + ":" + padZero(minutes) + ":" + padZero(seconds);
+
+		var logEntryText = document.getElementById("textInput");
+		logEntryText.value += " Timer stopped, " + formattedTime + " lost due to " + timerReason.value;
+
+		// Update the selected timer if it exists
+		if (selectedTimer.displayElement) {
+			selectedTimer.displayElement.textContent = formattedTime;
+		}
+	}
+	
+    function appendTextFileToLog() {
+        // Replace 'weather_data.txt' with the path to your text file.
+        fetch('weather_data.txt?v=' + Date.now()) // Adding cache-busting query parameter
+            .then(response => response.text())
+            .then(text => {
+                // Create a log entry container and text container.
+                var logEntryContainer = document.createElement("div");
+                logEntryContainer.className = "log-entry-container";
+                var logEntryTextContainer = document.createElement("div");
+                logEntryTextContainer.className = "log-entry-text-container";
+
+                // Create a log entry text element and set its content to the fetched text.
+                var logEntryText = document.createElement("p");
+                logEntryText.className = "log-entry-text";
+                logEntryText.contentEditable = true;
+                logEntryText.innerHTML = text;
+
+                // Append the log entry text to its container and the container to the log.
+                logEntryTextContainer.appendChild(logEntryText);
+                logEntryContainer.appendChild(logEntryTextContainer);
+                document.getElementById("output").prepend(logEntryContainer);
+            })
+            .catch(error => {
+                console.error("Error fetching log entry:", error);
+            });
+    }
+
+    // Call appendTextFileToLog initially and every 10 minutes.
+    appendTextFileToLog(); // Call it once immediately.
+
+    // Set an interval to call the function every 10 minutes (10 minutes * 60 seconds * 1000 milliseconds).
+    setInterval(appendTextFileToLog, 10 * 60 * 1000);
+
+    // JavaScript function to toggle the form visibility
+    function toggleForm() {
+        var form = document.getElementById("logCategoryForm");
+        var button = document.getElementById("toggleFormButton");
+        if (form.style.display === "block") {
+            form.style.display = "none";
+            button.textContent = "Show Setup";
+        } else {
+            form.style.display = "block";
+            button.textContent = "Hide Setup";
+        }
+    }
+</script>
+</body>
+</html>
