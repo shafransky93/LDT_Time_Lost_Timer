@@ -206,7 +206,7 @@
 </div>
 <div class="container">
     <button id="darkModeButton" onclick="toggleDarkMode()">Dark Mode</button>
-	<button id="toggleFormButton" onclick="toggleForm()">Hide Setup</button>
+	<button id="toggleFormButton" onclick="toggleForm()">Hide Header</button>
     <h1 id="output-title">LDT Observatory Log</h1>
 	<h4 id="objectivesSubheader">Objectives:</h4>
 	<div id="objectivesTextBlock" style="display: none;"></div>
@@ -227,7 +227,6 @@
 		<input type="radio" name="shift" value="C"> C
 		<input type="radio" name="shift" value="Day"> Day
 		<div></div>
-		<button id="setSessionTypeButton" onclick="setSessionType()">Set Session Type</button>
         <label for="userInput">User:</label>
         <!-- Apply the smaller-select class to the select box -->
         <select id="userInput" onchange="updateTitleOnFirstSelection(this)" class="smaller-select">
@@ -236,22 +235,31 @@
             <option value="Erin Maier">Erin Maier</option>
             <option value="Ishara Nisley">Ishara Nisley</option>
         </select>
-        <button id="setUserButton" onclick="setLogUser()">Set User</button>
+
+		<button id="setUserAndSessionTypeButton" onclick="setUserAndSessionType()">Set Header</button>
+
 		<label for="objectivesInput">Objectives:</label>
 		<textarea id="objectivesInput" oninput="adjustTextareaHeight();"></textarea>
-		<button id="submitObjectivesButton" onclick="submitObjectives()">Submit Objectives</button>
+		<button id="submitObjectivesButton" onclick="submitObjectives()" >Submit Objectives</button>
 
 	</form>
-
     <form onsubmit="processInput(); return false;">
  
 		<label for="peopleList">People Present:</label>
 		<select id="peopleList">
-			<option value="Benjamin">Benjamin Shafranksy</option>
+			<option value="Benjamin">Benjamin Shafransky</option>
 			<option value="Cecilia">Cecilia Siqueiros</option>
 			<option value="Erin">Erin Maier</option>
 			<option value="Ishara">Ishara Nisley</option>
 			<option value="Evelyn">Evelyn Starling</option>
+			<option value="Gavin">Gavin Moriarty</option>
+			<option value="Jane">Jane Jedlink</option>
+			<option value="Jose">Jose Fernandez</option>
+			<option value="Stephen">Stephen Levine</option>
+			<option value="Kyler">Kyler Kuehn</option>
+			<option value="Tim">Timothy Ellsworth-Bowers</option>			
+			<option value="Observer">Observer</option>
+			<option value="Visitor">Visitor</option>
 			
 		</select>
 		<button id="addPersonButton" onclick="addPerson()">Add Person</button>
@@ -297,7 +305,17 @@
     </form>
 
     <div class="log-entry-container" id="output"></div>
+
+	<label for="accomplishmentsInput">Accomplishments:</label>
+	<textarea id="accomplishmentsInput" rows="4" cols="50"></textarea>
+
+	<button id="sendEmailButton" onclick="sendLogAsEmail()">Send Log as Email</button>
+
+
 </div>
+
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+
 <script>
     var userSet = false; // Variable to track whether the user has been set
     var selectedCategory = ""; // Variable to store the selected category
@@ -316,31 +334,34 @@
         }
     }
 
-    function setUser() {
-        var user = document.getElementById("userInput").value;
-        var outputTitle = document.getElementById("output-title");
-        outputTitle.textContent = outputTitle.textContent.replace(/\[.*\]/, ''); // Remove existing user information
-        outputTitle.textContent += ' [' + user + ']';
-        userSet = true;
-    }
+	var selectedShift = ""; // Define selectedShift at a broader scope
 
-	function setSessionType() {
+	function setUserAndSessionType() {
+		// Set the user
+		var user = document.getElementById("userInput").value;
+		var logEntryText = document.getElementById("textInput");
+		logEntryText.value += user + " selected as session user. ";
+
+		// Set the session type
 		var selectedSessionType = document.querySelector('input[name="category"]:checked').value;
-		var selectedShift = document.querySelector('input[name="shift"]:checked');
+    
+		// Get the selected shift value
+		var selectedShift = document.querySelector('input[name="shift"]:checked').value;
+    
 		var outputTitle = document.getElementById("output-title");
 		var userNameMatch = outputTitle.textContent.match(/\[(.*?)\]/);
-		var user = userNameMatch ? userNameMatch[1] : "";
-		var title = selectedSessionType  + " Session - " + ' LDT Observatory Log' + (user ? '- [' + user + ']' : '');
+		var userTitle = user ? '[' + user + ']' : '';
+		var title = selectedSessionType + ' LDT Observatory Log ' + userTitle;
 
 		if (selectedShift) {
-			title += ' - '+ selectedShift.value+' Shift';
+			title += ' - ' + selectedShift + " shift"; // Use the selected shift value
 		}
 
 		// Update the page title
 		document.title = title;
 
 		outputTitle.textContent = title; // Update the H1 element
-		selectedCategory = selectedSessionType;
+		userSet = true;
 	}
 
 	function processInput() {
@@ -642,12 +663,79 @@
         var button = document.getElementById("toggleFormButton");
         if (form.style.display === "block") {
             form.style.display = "none";
-            button.textContent = "Show Setup";
+            button.textContent = "Show Header";
         } else {
             form.style.display = "block";
-            button.textContent = "Hide Setup";
+            button.textContent = "Hide Header";
         }
     }
+
+	function sendLogAsEmail() {
+		// Collect and format the information from the page
+		var sessionType = document.querySelector('input[name="category"]:checked').value;
+		var shift = document.querySelector('input[name="shift"]:checked');
+		var user = document.getElementById("userInput").value;
+		// Get the current UTC date and time in the desired format
+		var utcDate = getFormattedUTCDate();
+    
+		var pageTitle = `LDT ${sessionType} Log - ${utcDate}`;			
+		var logEntries = document.querySelectorAll('.log-entry-text');
+		var formattedLog = pageTitle + '\n\n';
+		var temporalRecord = '';
+		var weatherData = '';
+
+		logEntries.forEach(function (logEntry) {
+			var entryText = logEntry.textContent;
+			formattedLog += entryText + '\n';
+
+			// Check if the log entry contains [Weather Data]
+			if (entryText.includes('[Weather Data]')) {
+				// Extract the weather data and add it to the weatherData variable
+				var weatherEntry = entryText.replace('[Weather Data]', '').trim();
+				weatherData += weatherEntry + '\n';
+			} else {
+				// Add the log entry to the temporal record
+				temporalRecord += entryText + '\n';
+			}
+		});
+
+		// Get the accomplishments text from the input field
+		var accomplishments = document.getElementById("accomplishmentsInput").value;
+	
+		// Define the template parameters
+		var templateParams = {
+			datetime: utcDate + selectedShift,
+			objectives: document.getElementById("objectivesInput").value,
+			shift: document.getElementById("selectedShift.value"),
+			sessionType: sessionType,
+			user: user,
+			accomplishments: accomplishments,
+			temporalRecord: temporalRecord,
+			weatherData: weatherData
+		};
+
+		// Configure your email service using Email.js
+		emailjs.init("i-lpsh7ek0Hxb2YHz");
+
+		// Set your email service template and parameters
+		emailjs.send("service_rspdvmv", "template_uaoi57e", templateParams)
+			.then(function (response) {
+				console.log("Email sent successfully:", response);
+				alert("Log has been sent as an email!");
+			}, function (error) {
+				console.error("Email sending failed:", error);
+				alert("Email sending failed. Please try again.");
+			});
+	}
+	
+	function getFormattedUTCDate() {
+		const now = new Date();
+		const year = now.getUTCFullYear();
+		const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(now.getUTCDate()).padStart(2, '0');
+    
+		return `${year}-${month}-${day}UT`;
+	}
 </script>
 </body>
 </html>
