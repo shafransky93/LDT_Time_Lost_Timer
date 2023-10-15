@@ -1,0 +1,9 @@
+Setup a python server:
+
+python -m python -m http.server
+
+This opens a server at port 8000
+
+Navigate to the log by entering the following url into your browser
+
+http://localhost:8000/LOL-LDT_Observatory_Log.html
