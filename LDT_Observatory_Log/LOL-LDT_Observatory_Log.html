@@ -77,36 +77,30 @@
             width: 200px;
             height: 30px;
         }
-
         select, textarea {
             width: 100%;
             padding: 5px;
             margin: 5px 0;
         }
-
         textarea {
             resize: vertical; /* Allow the textarea to be resized vertically */
         }
-
         button {
-            padding: 10px 20px;
+            padding: 5px 10px;
             background-color: #007bff;
             color: #fff;
             border: none;
             cursor: pointer;
-        }
-		
+        }	
 		/* Container for the buttons */
 		.log-entry-text-container .edit-buttons {
 			display: flex;
 		}
-
 		/* Style for the Edit and Done buttons */
 		.log-entry-text-container .edit-buttons button {
 			flex: 1;
 			margin-right: 5px;
 		}
-
 		/* Style for the button container */
 		.log-entry-text-container button {
 			display: inline-block;
@@ -116,7 +110,6 @@
         button:hover {
             background-color: #0056b3;
         }
-
         .log-entry-container {
             border: 1px solid #ddd;
             padding: 10px;
@@ -134,12 +127,10 @@
         #output-title {
             font-size: 24px; /* Adjust the font size as needed */
         }
-
         /* Dark mode styles */
         .dark-mode {
             background-color: #121212;
             color: #000;
-
             /* Title text in dark mode */
             #output-title {
                 color: #fff; /* Set the title text color to white */
@@ -148,12 +139,10 @@
 				color: #fff;
 			}
         }
-
         .dark-mode button {
             background-color: #ccc;
             color: #121212;
         }
-
         .dark-mode button:hover {
             background-color: #999; /* Change the button color on hover in dark mode */
         }
@@ -161,8 +150,7 @@
         .dark-mode .log-entry-container {
             background-color: #333;
             color: #fff;
-        }
-				
+        }			
 		/* CSS for the sidebar */
 		#sidebar {
 			width: 250px;
@@ -175,27 +163,21 @@
 			overflow-y: auto;
 			border-right: 1px solid #ddd;
 		}
-
-
 		/* Style for the "People Present" heading */
 		#sidebar h2 {
 			margin-bottom: 10px;
 		}
-
 		/* Style for the list of people */
 		#sidebar ul {
 			list-style-type: none; /* Remove bullet points */
 			padding: 0;
 		}
-
 		/* Style for list items */
 		#sidebar li {
 			margin-bottom: 5px;
 		}
-
     </style>
 </head>
-
 <body>
 <div class="sidebar" id="sidebar">
 	<h2>Present at LDT</h2>
@@ -210,7 +192,8 @@
     <h1 id="output-title">LDT Observatory Log</h1>
 	<h4 id="objectivesSubheader">Objectives:</h4>
 	<div id="objectivesTextBlock" style="display: none;"></div>
-    <!-- Add radio buttons for Science, Engineering, and Science/Engineering -->
+
+    <!-- Radio buttons for Science, Engineering, and Science/Engineering -->
 	<form id="logCategoryForm" onsubmit="processInput(); return false;">
 		<label>Session Type:</label>
 		<input type="radio" name="category" value="Science"> Science
@@ -230,7 +213,7 @@
         <label for="userInput">User:</label>
         <!-- Apply the smaller-select class to the select box -->
         <select id="userInput" onchange="updateTitleOnFirstSelection(this)" class="smaller-select">
-            <option value="Benjamin Shafranksy">Benjamin Shafranksy</option>
+            <option value="Benjamin Shafransky">Benjamin Shafransky</option>
             <option value="Cecilia Siqueiros">Cecilia Siqueiros</option>
             <option value="Erin Maier">Erin Maier</option>
             <option value="Ishara Nisley">Ishara Nisley</option>
@@ -241,10 +224,6 @@
 		<label for="objectivesInput">Objectives:</label>
 		<textarea id="objectivesInput" oninput="adjustTextareaHeight();"></textarea>
 		<button id="submitObjectivesButton" onclick="submitObjectives()" >Submit Objectives</button>
-
-	</form>
-    <form onsubmit="processInput(); return false;">
- 
 		<label for="peopleList">People Present:</label>
 		<select id="peopleList">
 			<option value="Benjamin">Benjamin Shafransky</option>
@@ -264,6 +243,15 @@
 		</select>
 		<button id="addPersonButton" onclick="addPerson()">Add Person</button>
 		<button id="removePersonButton" onclick="removePerson()">Remove Person</button>
+		<br>		
+		<!-- Add an input field to add a new person -->
+		<input type="text" id="newPersonInput" placeholder="Vesto M. Slipher">
+		<!-- Add a button to add the new person to the list -->
+		<button id="addNewPersonButton" onclick="addNewPerson()">Add New Person</button>
+
+	</form>
+    <form onsubmit="processInput(); return false;">
+ 
 
         <br>
         <label for="categoryInput">Category:</label>
@@ -292,10 +280,15 @@
 		<button id="startTimerButton">Start Timer</button>
 		<button id="stopTimerButton">Stop Timer</button>
 		
+		<h3><div id="total-elapsed-time-display">Total Lost Time: 00:00:00</div></h3>
+	
 		<div id="timer-log">
-			<h3><div>Time lost:</div><div id="timer-display">00:00:00</div></h3>
+			<h3><div></div><div id="timer-display">00:00:00</div></h3>
 		</div>
-
+		<div id="total-timers">
+			<h3>Total Time for Each Reason:</h3>
+			<ul id="reason-times"></ul>
+		</div>
         <label for="textInput">Enter Text:</label>
         <textarea id="textInput" oninput="adjustTextareaHeight();"></textarea>
         <br>
@@ -494,6 +487,32 @@
 		}
 	}
 
+	// Add an event listener to the "Add New Person" button
+	document.getElementById("addNewPersonButton").addEventListener("click", addNewPerson);
+
+	function addNewPerson() {
+		// Retrieve the value entered in the "New Person Name" input field
+		var newPersonInput = document.getElementById("newPersonInput");
+		var newPersonName = newPersonInput.value;
+
+		if (newPersonName) {
+			// Create a new <option> element with the person's name and add it to the "peopleList" <select> element
+			var peopleList = document.getElementById("peopleList");
+			var option = document.createElement("option");
+			option.value = newPersonName;
+			option.textContent = newPersonName;
+			peopleList.appendChild(option);
+
+			// Clear the "New Person Name" input field after adding the person
+			newPersonInput.value = "";
+
+			// Add the person's name to the log entry text
+			var logEntryText = document.getElementById("textInput");
+			logEntryText.value += newPersonName + " added to list. ";
+
+		}
+	}
+
 	function removePerson() {
 		var selectedPerson = document.getElementById("peopleList").value;
 		if (selectedPerson && peoplePresent.includes(selectedPerson)) {
@@ -531,6 +550,11 @@
 			var objectivesSubheader = document.getElementById("objectivesSubheader");
 			objectivesSubheader.style.display = "block"; // Show the sub-header
 			objectivesSubheader.textContent = "Objectives: " + objectivesText;
+
+			// Add the person's name to the log entry text
+			var logEntryText = document.getElementById("textInput");
+			logEntryText.value += "Objectives set.";
+
 		}
 	}
 
@@ -551,19 +575,22 @@
 	var timer;
 	var startTime;
 
-    // Modify the startTimer function
-    function startTimer() {
-        clearInterval(selectedTimer.timer); // Clear the previous timer
+	// Define a variable to store the total elapsed time
+	var totalElapsedTime = 0;
 
-        startTime = new Date().getTime();
-        timer = setInterval(updateTimer, 1000);
+	// Function to start the timer
+	function startTimer() {
+		clearInterval(selectedTimer.timer); // Clear the previous timer
 
-        var logEntryText = document.getElementById("textInput");
-        logEntryText.value += timerReason.value + " timer started.";
+		startTime = new Date().getTime();
+		timer = setInterval(updateTimer, 1000);
 
-        // Set the selected timer to the new timer
-        selectedTimer.timer = timer;
-    }
+		var logEntryText = document.getElementById("textInput");
+		logEntryText.value += timerReason.value + " timer started.";
+
+		// Set the selected timer to the new timer
+		selectedTimer.timer = timer;
+	}
 
 	function updateTimer() {
 		var currentTime = new Date().getTime();
@@ -582,9 +609,118 @@
 		}
 	}
 
+	// Initialize an object to store timer data for each reason.
+	const timerData = {
+		Weather: 0,
+		Technical: 0,
+		Observer: 0,
+		Staff: 0,
+		Other: 0,
+	};
+
+	// Function to update the timer display.
+	function updateTimerDisplay(seconds) {
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+		document.getElementById('timer-display').textContent = display;
+	}
+
+	// Function to start the timer.
+	document.getElementById('startTimerButton').addEventListener('click', function () {
+		const selectedReason = document.getElementById('timerReason').value;
+		// Track the start time for the selected reason.
+		const startTime = new Date().getTime();
+    
+		// Update the display and start the interval.
+		let elapsedTime = 0;
+		const interval = setInterval(() => {
+			elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+			updateTimerDisplay(elapsedTime);
+		}, 1000);
+    
+		// Store the interval and start time in timerData.
+		timerData[selectedReason] = {
+			interval: interval,
+			startTime: startTime,
+		};
+	});
+
+	// Function to stop the timer.
+	document.getElementById('stopTimerButton').addEventListener('click', function () {
+		const selectedReason = document.getElementById('timerReason').value;
+		const timerInfo = timerData[selectedReason];
+    
+		if (timerInfo) {
+			// Clear the interval.
+			clearInterval(timerInfo.interval);
+        
+			// Calculate the elapsed time and add it to the total time for the reason.
+			const elapsedTime = Math.floor((new Date().getTime() - timerInfo.startTime) / 1000);
+			timerData[selectedReason] += elapsedTime;
+        
+			// Update the display.
+			updateTimerDisplay(0);
+        
+			// Update the total time for each reason in the list.
+			const reasonTimesList = document.getElementById('reason-times');
+			reasonTimesList.innerHTML = '';
+			for (const reason in timerData) {
+				const listItem = document.createElement('li');
+				
+				listItem.textContent = `${reason}: ${timerData[reason]} s`;
+				reasonTimesList.appendChild(listItem);
+			}
+		}
+	});
+
+	// Function to update the display of the total elapsed time
+	function updateTotalElapsedTimeDisplay() {
+		var totalElapsedHours = Math.floor(totalElapsedTime / 3600000); // Hours
+		var totalElapsedMinutes = Math.floor((totalElapsedTime % 3600000) / 60000); // Minutes
+		var totalElapsedSeconds = Math.floor((totalElapsedTime % 60000) / 1000); // Seconds
+
+		// Format the total elapsed time as HH:MM:SS
+		var formattedTotalElapsedTime = padZero(totalElapsedHours) + ":" + padZero(totalElapsedMinutes) + ":" + padZero(totalElapsedSeconds);
+
+		// Update the display element for the total elapsed time
+		var totalElapsedDisplayElement = document.getElementById("total-elapsed-time-display");
+		totalElapsedDisplayElement.textContent = "Total Elapsed Time: " + formattedTotalElapsedTime;
+	}
+
+	// Add event listeners to start and stop the timer
+	document.getElementById("startTimerButton").addEventListener("click", startTimer);
+	document.getElementById("stopTimerButton").addEventListener("click", stopTimer);
+
+
+	// Function to format time in "hh:mm:ss" format
+	function formatTime(seconds) {
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+		return formattedTime;
+	}
 
 	function padZero(value) {
 		return value < 10 ? "0" + value : value;
+	}
+
+	// Call this function to update the display of the total elapsed time
+	function updateTotalElapsedTimeDisplay() {
+		var totalElapsedHours = Math.floor(totalElapsedTime / 3600000); // Hours
+		var totalElapsedMinutes = Math.floor((totalElapsedTime % 3600000) / 60000); // Minutes
+		var totalElapsedSeconds = Math.floor((totalElapsedTime % 60000) / 1000); // Seconds
+
+		// Format the total elapsed time as HH:MM:SS
+		var formattedTime = padZero(totalElapsedHours) + ":" + padZero(totalElapsedMinutes) + ":" + padZero(totalElapsedSeconds);		
+
+		var logEntryText = document.getElementById("textInput");
+		logEntryText.value +=  "Total Elapsed Time: " + formattedTime + " timer stopped.";
+
+
+		// Update the total elapsed time display element
+		var totalElapsedDisplayElement = document.getElementById("total-elapsed-time-display");
+		totalElapsedDisplayElement.textContent = "Total Elapsed Time: " + formattedTime;
 	}
 
 	// Add event listeners to start and stop the timer
@@ -602,12 +738,14 @@
         selectedTimer.displayElement.textContent = formattedTime;
     }
 	
-	// Modify the stopTimer function
+	// Function to stop the timer
 	function stopTimer() {
 		clearInterval(timer); // Stop the timer
 
 		var currentTime = new Date().getTime();
 		var elapsed = currentTime - startTime;
+		totalElapsedTime += elapsed; // Add the elapsed time to the total
+
 		var hours = Math.floor(elapsed / 3600000); // 1 hour = 3600000 milliseconds
 		var minutes = Math.floor((elapsed % 3600000) / 60000); // 1 minute = 60000 milliseconds
 		var seconds = Math.floor((elapsed % 60000) / 1000); // 1 second = 1000 milliseconds
@@ -615,14 +753,14 @@
 		// Format the time as HH:MM:SS
 		var formattedTime = padZero(hours) + ":" + padZero(minutes) + ":" + padZero(seconds);
 
-		var logEntryText = document.getElementById("textInput");
-		logEntryText.value += " Timer stopped, " + formattedTime + " lost due to " + timerReason.value;
-
 		// Update the selected timer if it exists
 		if (selectedTimer.displayElement) {
 			selectedTimer.displayElement.textContent = formattedTime;
 		}
-	}
+
+		// Update the total elapsed time display
+		updateTotalElapsedTimeDisplay();
+	}	
 	
     function appendTextFileToLog() {
         // Replace 'weather_data.txt' with the path to your text file.
@@ -673,6 +811,160 @@
 	function sendLogAsEmail() {
 		// Collect and format the information from the page
 		var sessionType = document.querySelector('input[name="category"]:checked').value;
+		var user = document.getElementById("userInput").value;
+		var shift = document.querySelector('input[name="shift"]:checked').value;
+		var datetime = getFormattedUTCDate();
+		var objectives = document.getElementById("objectivesInput").value;
+		var accomplishments = document.getElementById("accomplishmentsInput").value;
+
+		// Gather log entries
+		var logEntries = document.querySelectorAll('.log-entry-text');
+		var temporalRecord = '';
+		var weatherData = '';
+
+		logEntries.forEach(function (logEntry) {
+			var entryText = logEntry.textContent;
+			if (entryText.includes('[Weather Data]')) {
+				// Extract the weather data and add it to the weatherData variable
+				var weatherEntry = entryText.replace('[Weather Data]', '').trim();
+				weatherData += weatherEntry + '\n';
+			} else {
+				// Add the log entry to the temporal record
+				temporalRecord += entryText + '\n';
+			}
+		});
+
+		// Create the email content using a template
+		var emailContent = `
+		Subject: LDT ${sessionType} Log - ${datetime} - ${shift}
+
+		Content:
+		${datetime}
+		Objectives: ${objectives}
+		Session Type: ${sessionType}
+		User: ${user}
+
+		ACCOMPLISHMENTS: ${accomplishments}
+
+		SUMMARY:
+
+		Temporal Record:
+		${temporalRecord}
+
+		Weather Data:
+		${weatherData}
+		`;
+
+		// Open a popup window with an editable textarea
+		var emailWindow = window.open("", "Email Content", "width=500,height=400");
+		emailWindow.document.open();
+		emailWindow.document.write('<textarea rows="10" cols="50" id="emailTextarea">' + emailContent + '</textarea>');
+		emailWindow.document.write('<br>');
+		emailWindow.document.write('<button id="saveButton" onclick="sendLogAsEmail()">Send</button>');
+
+		// Add an event listener to the Save button to save the edited content
+		emailWindow.document.getElementById("saveButton").addEventListener("click", function () {
+			var editedContent = emailWindow.document.getElementById("emailTextarea").value;
+			emailContent = editedContent;
+			emailWindow.close();
+		});
+
+		emailWindow.document.close();
+		// Create an anchor element to trigger the email client
+		var emailAnchor = document.createElement("a");
+		emailAnchor.href = emailLink;
+		emailAnchor.style.display = "none";
+		// Append the anchor element to the body and trigger a click event
+		document.body.appendChild(emailAnchor);
+		emailAnchor.click();
+		// Remove the anchor element
+		document.body.removeChild(emailAnchor);
+	}
+
+	function getFormattedUTCDate() {
+		const now = new Date();
+		const year = now.getUTCFullYear();
+		const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(now.getUTCDate()).padStart(2, '0');
+		return `${year}-${month}-${day}UT`;
+	}
+	
+	function sendLogAsEmail() {
+		// Collect and format the information from the page
+		var sessionType = document.querySelector('input[name="category"]:checked').value;
+		var user = document.getElementById("userInput").value;
+		var shift = document.querySelector('input[name="shift"]:checked').value;
+		var datetime = getFormattedUTCDate();
+		var objectives = document.getElementById("objectivesInput").value;
+		var accomplishments = document.getElementById("accomplishmentsInput").value;
+
+		// Gather log entries
+		var logEntries = document.querySelectorAll('.log-entry-text');
+		var temporalRecord = '';
+		var weatherData = '';
+
+		logEntries.forEach(function (logEntry) {
+			var entryText = logEntry.textContent;
+			if (entryText.includes('[Weather Data]')) {
+				// Extract the weather data and add it to the weatherData variable
+				var weatherEntry = entryText.replace('[Weather Data]', '').trim();
+				weatherData += weatherEntry + '\n';
+			} else {
+				// Add the log entry to the temporal record
+				temporalRecord += entryText + '\n';
+			}
+		});
+
+// Create the email content using a template
+var emailContent = `
+Subject: LDT ${sessionType} Log - ${datetime} - ${shift}
+
+Content:
+${datetime}
+Objectives: ${objectives}
+Session Type: ${sessionType}
+User: ${user}
+
+ACCOMPLISHMENTS: ${accomplishments}
+
+SUMMARY:
+
+Temporal Record:
+${temporalRecord}
+
+Weather Data:
+${weatherData}
+`;
+
+		// Open a popup window with an editable textarea
+		var emailWindow = window.open("", "Email Content", "width=600,height=800");
+		emailWindow.document.open();
+		emailWindow.document.write('<textarea rows="39" cols="70" id="emailTextarea">' + emailContent + '</textarea>');
+		emailWindow.document.write('<br>');
+		emailWindow.document.write('<button id="saveButton" onclick="sendLogAsEmail()">Send</button>');
+
+		// Add an event listener to the Save button to save the edited content
+		emailWindow.document.getElementById("saveButton").addEventListener("click", function () {
+			var editedContent = emailWindow.document.getElementById("emailTextarea").value;
+			emailContent = editedContent;
+			emailWindow.close();
+			// Configure your email service using Email.js
+			emailjs.init("i-lpsh7ek0Hxb2YHz");
+
+			// Set your email service template and parameters
+			emailjs.send("service_rspdvmv", "template_uaoi57e", templateParams)
+				.then(function (response) {
+					console.log("Email sent successfully:", response);
+					alert("Log has been sent as an email!");
+				}, function (error) {
+					console.error("Email sending failed:", error);
+					alert("Email sending failed. Please try again.");
+				});			
+		});
+
+		emailWindow.document.close();
+		// Collect and format the information from the page
+		var sessionType = document.querySelector('input[name="category"]:checked').value;
 		var shift = document.querySelector('input[name="shift"]:checked');
 		var user = document.getElementById("userInput").value;
 		// Get the current UTC date and time in the desired format
@@ -700,8 +992,7 @@
 		});
 
 		// Get the accomplishments text from the input field
-		var accomplishments = document.getElementById("accomplishmentsInput").value;
-	
+		var accomplishments = document.getElementById("accomplishmentsInput").value;	
 		// Define the template parameters
 		var templateParams = {
 			datetime: utcDate + selectedShift,
@@ -713,28 +1004,6 @@
 			temporalRecord: temporalRecord,
 			weatherData: weatherData
 		};
-
-		// Configure your email service using Email.js
-		emailjs.init("i-lpsh7ek0Hxb2YHz");
-
-		// Set your email service template and parameters
-		emailjs.send("service_rspdvmv", "template_uaoi57e", templateParams)
-			.then(function (response) {
-				console.log("Email sent successfully:", response);
-				alert("Log has been sent as an email!");
-			}, function (error) {
-				console.error("Email sending failed:", error);
-				alert("Email sending failed. Please try again.");
-			});
-	}
-	
-	function getFormattedUTCDate() {
-		const now = new Date();
-		const year = now.getUTCFullYear();
-		const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-		const day = String(now.getUTCDate()).padStart(2, '0');
-    
-		return `${year}-${month}-${day}UT`;
 	}
 </script>
 </body>
