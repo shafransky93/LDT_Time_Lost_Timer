@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LDT Time Lost Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+		.container {
+			margin: 0 auto;
+			background-color: #fff; /* White background for the container */
+		}
+
+        h3 {
+            text-align: center;
+        }
+		
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #logCategoryForm {
+            display: block;
+        }
+		
+		#objectivesSubheader {
+			text-align: left; /* Align the "Objectives" label to the left */
+		}
+
+		#objectivesTextBlock {
+			white-space: pre-line; /* Allow line breaks in the text */
+			text-align: left; /* Align the objectives text to the left */
+		}
+
+		/* Add styling to the session type form */
+		#logCategoryForm {
+			margin-top: 20px;
+			border: 1px solid #ddd;
+			padding: 20px;
+			background-color: #f9f9f9;
+		}
+
+		#logCategoryForm label {
+			display: block;
+			margin-top: 10px;
+			font-weight: bold;
+		}
+
+		#logCategoryForm input[type="radio"] {
+			margin-right: 10px;
+		}
+
+		#logCategoryForm button {
+			padding: 10px 20px;
+			background-color: #007bff;
+			color: #fff;
+			border: none;
+			cursor: pointer;
+			margin-top: 10px;
+		}
+
+		#startTimerButton,
+		#stopTimerButton {
+			padding: 15px 30px;
+			background-color: #007bff;
+			color: #fff;
+			font-size: 16px;
+			border: none;
+			cursor: pointer;
+			margin-top: 10px;
+			display: inline-block;
+			margin: 0 10px; /* Add some margin for spacing between the buttons */
+		}
+
+		#startTimerButton:hover,
+		#stopTimerButton:hover {
+			background-color: #0056b3;
+		}
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* CSS class for the smaller select box */
+        .smaller-select {
+            width: 200px;
+            height: 30px;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0;
+        }
+
+        textarea {
+            resize: vertical; /* Allow the textarea to be resized vertically */
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+		
+		/* Container for the buttons */
+		.log-entry-text-container .edit-buttons {
+			display: flex;
+		}
+
+		/* Style for the Edit and Done buttons */
+		.log-entry-text-container .edit-buttons button {
+			flex: 1;
+			margin-right: 5px;
+		}
+
+		/* Style for the button container */
+		.log-entry-text-container button {
+			display: inline-block;
+			margin-right: 5px; /* Add some spacing between buttons */
+		}
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .log-entry-container {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 7px;
+            background-color: #fff;
+            white-space: pre-line; /* Allow line breaks in the text */
+        }
+		
+		/* Dark mode styles */
+		.dark-mode {
+			background-color: #333; /* Change the background color to a dark gray */
+			color: #eee; /* Change the text color to a lighter gray */
+		}
+
+		/* Dark mode styles for the body */
+		.dark-mode body {
+			background-color: #222; /* Use a slightly darker background color for the entire body in dark mode */
+			color: #eee; /* White text color for the entire body in dark mode */
+		}
+
+		/* Dark mode styles for the container */
+		.dark-mode .container {
+			background-color: #222; /* Use a slightly darker background color for the container in dark mode */
+			color: #eee; /* White text color for the container in dark mode */
+		}
+
+        .dark-mode button {
+            background-color: #ccc;
+            color: #121212;
+        }
+
+        .dark-mode button:hover {
+            background-color: #999; /* Change the button color on hover in dark mode */
+        }
+
+		/* Dark mode styles for the log entry container */
+		.dark-mode .log-entry-container {
+			background-color: #000; /* Black background for log entries in dark mode */
+			color: #fff; /* White text color for log entries in dark mode */
+		}
+
+		/* Title text in dark mode */
+		.dark-mode #output-title {
+			color: #fff;
+		}
+
+		/* Dark mode styles for the form region */
+		.dark-mode form {
+			background-color: #222; /* Black background for the form region in dark mode */
+			color: #fff; /* White text color for the form region in dark mode */
+		}
+
+		/* Dark mode styles for buttons */
+		.dark-mode button {
+			background-color: #444; /* Use a darker gray background for buttons in dark mode */
+			color: #eee; /* White text color for buttons in dark mode */
+		}
+
+		/* Dark mode styles for buttons on hover */
+		.dark-mode button:hover {
+			background-color: #666; /* Slightly lighter background for buttons on hover in dark mode */
+		}
+
+		/* Dark mode styles for the log entry container */
+		.dark-mode .log-entry-container {
+			background-color: #222; /* Use a slightly darker background for log entries in dark mode */
+			color: #eee; /* White text color for log entries in dark mode */
+		}
+		
+		
+        /* Remove bullet points for the reason-times list */
+        #reason-times {
+            list-style: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <button id="darkModeButton" onclick="toggleDarkMode()">Dark Mode</button>
+
+    <form onsubmit="processInput(); return false;">
+		<div id="timer-log">
+			<h1><div></div><div id="timer-display">00:00:00</div></h1>
+		</div>
+
+		<label for="timerReason">Timer Reason:</label>
+		<select id="timerReason">
+			<option value="Other">Other</option>
+			<option value="Weather">Weather</option>
+			<option value="Technical">Technical</option>
+			<option value="Observer">Observer</option>
+			<option value="Staff">Staff</option>
+			
+		</select>
+		<h3>
+			<button id="startTimerButton">Start Timer</button>
+			<button id="stopTimerButton">Stop Timer</button>
+		</h3>
+		<h3>
+			<div id="sunset-info"></div> 
+			<div id="sunrise-info"></div>	
+			<div id="observing-times-difference"></div>
+
+		<div id="observing-efficiency">
+			Observing Efficiency: Calculating beep boop ...
+		</div>
+		</h3>
+
+		<h3><div id="total-elapsed-time-display">Total Lost Time: 00:00:00</div></h3>
+	
+		<div id="total-timers">
+			<h3>Total Time for Each Reason:</h3>
+			<h3><ul id="reason-times"></ul></h3>
+		</div>
+        <label for="textInput">Enter Text:</label>
+        <textarea id="textInput" oninput="adjustTextareaHeight();"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div class="log-entry-container" id="output"></div>
+	<button id="saveLogButton" onclick="saveLogToFile()">Save Log</button>
+
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.8.0/suncalc.min.js"></script>
+<script>
+
+	// Add event listener for beforeunload event
+	window.addEventListener('beforeunload', function (event) {
+		// Check if the user has unsaved changes or a running timer
+		// Display a confirmation message
+		const confirmationMessage = 'There is no buffer because this is poorly coded 😅, nothing will be saved. Are you sure you want to leave?';
+		(event || window.event).returnValue = confirmationMessage; // Standard
+		return confirmationMessage; // For some older browsers
+	});
+
+	// Function to check if there are unsaved changes
+	function unsavedChangesExist() {
+		const logEntryText = document.getElementById('textInput').value.trim();
+		return logEntryText !== '';
+	}
+
+    var userSet = false; // Variable to track whether the user has been set
+    var selectedCategory = ""; // Variable to store the selected category
+    var currentEditLogEntry = null; // Variable to store the currently edited log entry
+
+	function processInput() {
+		var inputText = document.getElementById("textInput").value;
+		var currentTime = new Date();
+		var options = { timeZone: 'UTC', hour12: false };
+		var utcTime = currentTime.toLocaleTimeString('en-US', options);
+
+		var logEntryContainer = document.createElement("div");
+		logEntryContainer.className = "log-entry-container";
+
+		var logEntryTextContainer = document.createElement("div");
+		logEntryTextContainer.className = "log-entry-text-container";
+		logEntryContainer.appendChild(logEntryTextContainer);
+
+		var logEntryText = document.createElement("p");
+		logEntryText.className = "log-entry-text";
+
+		// Include the reason in the log entry text
+		var selectedReason = document.getElementById('timerReason').value;
+		logEntryText.innerHTML = utcTime + ' ' + selectedReason + ' ' + inputText;
+
+		logEntryTextContainer.appendChild(logEntryText);
+
+
+		document.getElementById("output").prepend(logEntryContainer);
+
+		document.getElementById("textInput").value = "";
+	}
+
+	function saveEditedLogEntry(logEntryText, logEntryContainer) {
+		// Extract the time, reason, and user input from the log entry text
+		var logText = logEntryText.innerHTML;
+		var time = logText.substr(0, 8);
+		var reason = logText.split(" ")[1];
+		var userInput = logText.split(" ").slice(2).join(" "); // Extract user input after the reason
+
+		// Check if the reason is valid and exists in totalTimeForReason
+		if (totalTimeForReason.hasOwnProperty(reason)) {
+			// Update the total time for the edited reason
+			const elapsedTime = totalTimeForReason[reason];
+			totalTimeForReason[reason] -= elapsedTime;
+
+			// Update the total time with the user input
+			const userInputTime = parseUserInput(userInput);
+			totalTimeForReason[reason] += userInputTime * 1000;
+
+			// Update the display for each reason in the list
+			const reasonTimesList = document.getElementById('reason-times');
+			reasonTimesList.innerHTML = '';
+
+			for (const updatedReason in totalTimeForReason) {
+				const listItem = document.createElement('li');
+				listItem.textContent = `${updatedReason}: ${formatTime(totalTimeForReason[updatedReason] / 1000)}`;
+				reasonTimesList.appendChild(listItem);
+			}
+
+			// Update the content of the log entry
+			logEntryText.innerHTML = `${getCurrentTime()} ${reason} ${userInput}`;
+		} else {
+			console.error(`Invalid reason: ${reason}`);
+		}
+	}
+
+
+	// Function to parse user input in HH:MM:SS format and return total seconds
+	function parseUserInput(userInput) {
+		const userInputParts = userInput.split(":");
+		if (userInputParts.length === 3) {
+			const hours = parseInt(userInputParts[0], 10);
+			const minutes = parseInt(userInputParts[1], 10);
+			const seconds = parseInt(userInputParts[2], 10);
+
+			return hours * 3600 + minutes * 60 + seconds;
+		} else {
+			return 0;
+		}
+	}
+
+
+
+	// Function to get the current time in HH:MM:SS format
+	function getCurrentTime() {
+		var currentTime = new Date();
+		var options = { timeZone: 'UTC', hour12: false };
+		var utcTime = currentTime.toLocaleTimeString('en-US', options);
+		return utcTime.substr(0, 8);
+	}
+
+    // Define the adjustTextareaHeight function
+    function adjustTextareaHeight() {
+        var textarea = document.getElementById("textInput");
+        textarea.style.height = "auto"; // Reset the height to auto to calculate the correct scroll height
+        textarea.style.height = (textarea.scrollHeight) + "px"; // Set the height to the scroll height
+    }
+
+	function toggleDarkMode() {
+			var body = document.body;
+			var darkModeButton = document.getElementById("darkModeButton");
+
+			body.classList.toggle("dark-mode");
+
+			if (body.classList.contains("dark-mode")) {
+				darkModeButton.textContent = "Light Mode";
+			} else {
+				darkModeButton.textContent = "Dark Mode";
+			}
+		}
+		
+	// Initialize the timer variables
+	var timer;
+	var startTime;
+	var timerStarted = false;
+
+	// Define a variable to store the total elapsed time
+	var totalElapsedTime = 0;
+
+
+	// Initialize an object to store timer data for each reason.
+	const timerData = {
+		Weather: { interval: null, startTime: 0, elapsedTime: 0 },
+		Technical: { interval: null, startTime: 0, elapsedTime: 0 },
+		Observer: { interval: null, startTime: 0, elapsedTime: 0 },
+		Staff: { interval: null, startTime: 0, elapsedTime: 0 },
+		Other: { interval: null, startTime: 0, elapsedTime: 0 },
+	};
+
+	// Initialize an object to store total time for each reason.
+	const totalTimeForReason = {
+		Weather: 0,
+		Technical: 0,
+		Observer: 0,
+		Staff: 0,
+		Other: 0,
+	};
+
+	// Function to start the timer
+	function startTimer() {
+		
+	    if (timerStarted) {
+			alert("Timer has already started. You cannot start it again without stopping the previous one.");
+			clearInterval(selectedTimer.timer); // Clear the previous timer
+			return;
+		}
+
+		clearInterval(selectedTimer.timer); // Clear the previous timer
+
+		startTime = new Date().getTime();
+		timer = setInterval(updateTimer, 1000);
+
+		var logEntryText = document.getElementById("textInput");
+		logEntryText.value += " timer started.";
+
+		// Set the selected timer to the new timer
+		selectedTimer.timer = timer;
+		// Set timerStarted to true when the timer is started
+		timerStarted = true;
+	}
+	
+	function stopTimer() {
+		// Check if the timer has been started
+		if (!timerStarted) {
+			alert("Timer has not been started. You cannot stop it.");
+			return;
+		}
+		clearInterval(timer); // Stop the timer
+
+		var currentTime = new Date().getTime();
+		var elapsed = currentTime - startTime;
+
+		// Update the total elapsed time
+		totalElapsedTime += elapsed;
+
+		// Accumulate the total time for the selected reason
+		const selectedReason = document.getElementById('timerReason').value;
+		totalTimeForReason[selectedReason] += elapsed;
+
+		// Update the display for each reason in the list
+		const reasonTimesList = document.getElementById('reason-times');
+		reasonTimesList.innerHTML = '';
+
+		for (const reason in totalTimeForReason) {
+			const listItem = document.createElement('li');
+			listItem.textContent = `${reason}: ${formatTime(totalTimeForReason[reason] / 1000)}`;
+			reasonTimesList.appendChild(listItem);
+		}
+
+		// Update the total elapsed time display
+		updateTotalElapsedTimeDisplay();
+
+		// Call the function to update observing efficiency when the timer is stopped
+		updateObservingEfficiency();
+
+		// Reset timerStarted to false when the timer is stopped
+		timerStarted = false;
+	}
+
+	
+	// Function to start the timer.
+	document.getElementById('startTimerButton').addEventListener('click', function () {
+		const selectedReason = document.getElementById('timerReason').value;
+
+		// Clear any existing interval for this reason.
+		if (timerData[selectedReason].interval) {
+			clearInterval(timerData[selectedReason].interval);
+		}
+
+		// Store the start time and initialize elapsed time to 0.
+		timerData[selectedReason].startTime = new Date().getTime();
+		timerData[selectedReason].elapsedTime = 0;
+
+		// Start the interval to update the timer display.
+		timerData[selectedReason].interval = setInterval(() => {
+			timerData[selectedReason].elapsedTime++;
+			updateTimerDisplay(timerData[selectedReason].elapsedTime);
+		}, 1000);
+	});
+
+	// Function to stop the timer.
+	document.getElementById('stopTimerButton').addEventListener('click', function () {
+		const selectedReason = document.getElementById('timerReason').value;
+		const timerInfo = timerData[selectedReason];
+
+		if (timerInfo && timerInfo.interval !== null) {
+			// Clear the interval.
+			clearInterval(timerInfo.interval);
+
+			// Calculate the elapsed time and add it to the total time for the reason.
+			const currentTime = new Date().getTime();
+			const elapsed = Math.floor((currentTime - timerInfo.startTime) / 1000);
+			timerData[selectedReason].elapsedTime += elapsed;
+
+			// Update the display.
+			updateTimerDisplay(0);
+
+			// Update the total time for each reason in the list.
+			const reasonTimesList = document.getElementById('reason-times');
+			reasonTimesList.innerHTML = '';
+			for (const reason in timerData) {
+				const listItem = document.createElement('li');
+				listItem.textContent = `${reason}: ${timerData[reason].elapsedTime / 2 || 0} s`;
+				reasonTimesList.appendChild(listItem);
+			}
+		}
+	});
+	
+	function updateTimer() {
+		var currentTime = new Date().getTime();
+		var elapsed = currentTime - startTime;
+		var hours = Math.floor(elapsed / 3600000); // 1 hour = 3600000 milliseconds
+		var minutes = Math.floor((elapsed % 3600000) / 60000); // 1 minute = 60000 milliseconds
+		var seconds = Math.floor((elapsed % 60000) / 1000); // 1 second = 1000 milliseconds
+
+		// Format the time as HH:MM:SS
+		var formattedTime = padZero(hours) + ":" + padZero(minutes) + ":" + padZero(seconds);
+
+		// Update the timer display
+		var timerDisplay = document.getElementById("timer-display");
+		if (timerDisplay) {
+			timerDisplay.textContent = formattedTime;
+		}
+	}
+
+	// Function to update the timer display.
+	function updateTimerDisplay(seconds) {
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+		document.getElementById('timer-display').textContent = display;
+	}
+
+
+	// Function to calculate the total elapsed time for all reasons.
+	function calculateTotalElapsedTime() {
+		let totalElapsedTime = 0;
+		for (const reason in timerData) {
+			totalElapsedTime += timerData[reason].elapsedTime;
+		}
+		return totalElapsedTime;
+	}
+
+	function updateTotalElapsedTimeDisplay() {
+		var totalElapsedHours = Math.floor(totalElapsedTime / 3600000); // Hours
+		var totalElapsedMinutes = Math.floor((totalElapsedTime % 3600000) / 60000); // Minutes
+		var totalElapsedSeconds = Math.floor((totalElapsedTime % 60000) / 1000); // Seconds
+
+		// Format the total elapsed time as HH:MM:SS
+		var formattedTime = formatTime(totalElapsedHours) + ":" + formatTime(totalElapsedMinutes) + ":" + formatTime(totalElapsedSeconds);
+
+		var logEntryText = document.getElementById("textInput");
+		logEntryText.value +=  '[Time lost] : ' + formattedTime;
+
+		// Update the total elapsed time display element
+		var totalElapsedDisplayElement = document.getElementById("total-elapsed-time-display");
+		totalElapsedDisplayElement.textContent = "Total Lost Time: " + formattedTime;
+
+
+		// Call the function to update observing efficiency
+		updateObservingEfficiency();
+	}
+
+
+	// Call the function to initialize the display.
+	updateTotalElapsedTimeDisplay();
+
+	// Add event listeners to start and stop the timer
+	document.getElementById("startTimerButton").addEventListener("click", startTimer);
+	document.getElementById("stopTimerButton").addEventListener("click", stopTimer);
+
+
+	// Function to format time in "hh:mm:ss" format
+	function formatTime(seconds) {
+		// Round the seconds to the nearest second
+		seconds = Math.round(seconds);
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+		const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+		return formattedTime;
+	}
+
+	function padZero(value) {
+		return value < 10 ? "0" + value : value;
+	}
+
+	// Call this function to update the display of the total elapsed time
+	function updateTotalElapsedTimeDisplay() {
+		var totalElapsedHours = Math.floor(totalElapsedTime / 3600000); // Hours
+		var totalElapsedMinutes = Math.floor((totalElapsedTime % 3600000) / 60000); // Minutes
+		var totalElapsedSeconds = Math.floor((totalElapsedTime % 60000) / 1000); // Seconds
+
+		// Format the total elapsed time as HH:MM:SS
+		var formattedTime = padZero(totalElapsedHours) + ":" + padZero(totalElapsedMinutes) + ":" + padZero(totalElapsedSeconds);		
+
+		var logEntryText = document.getElementById("textInput");
+		logEntryText.value +=   formattedTime;
+
+
+		// Update the total elapsed time display element
+		var totalElapsedDisplayElement = document.getElementById("total-elapsed-time-display");
+		totalElapsedDisplayElement.textContent = "Total Elapsed Time: " + formattedTime;
+	}
+
+	// Add event listeners to start and stop the timer
+	document.getElementById("startTimerButton").addEventListener("click", startTimer);
+	document.getElementById("stopTimerButton").addEventListener("click", stopTimer);
+
+    // Create a variable to track the selected timer
+    var selectedTimer = {
+        timer: null,
+        displayElement: document.getElementById("selectedTimer")
+    };
+
+    // Update the selected timer
+    function updateSelectedTimer(formattedTime) {
+        selectedTimer.displayElement.textContent = formattedTime;
+    }
+	
+
+
+    // Function to calculate accurate sunset time for today using Suncalc
+    function calculateAccurateSunsetTimeForToday() {
+        const latitude = 34.7444; // Your observatory's latitude
+        const longitude = -111.422; // Your observatory's longitude
+
+        // Get sunset time for today using Suncalc
+        const times = SunCalc.getTimes(new Date(), latitude, longitude);
+
+        // Extract sunset time from the Suncalc result
+        const sunsetTime = times.sunset;
+
+		// Add one hour to the sunset time to make it Nautical twilight
+		sunsetTime.setUTCHours(sunsetTime.getUTCHours() + 1);
+
+        // Format the sunset time in hours and minutes
+        const sunsetHours = sunsetTime.getUTCHours();
+        const sunsetMinutes = sunsetTime.getUTCMinutes();
+
+        // Format the sunset time
+        const formattedSunsetTime = sunsetHours.toString().padStart(2, '0') + ':' + sunsetMinutes.toString().padStart(2, '0');
+
+        // Display the calculated sunset time for today (UTC)
+        const sunsetInfoElement = document.getElementById('sunset-info');
+        sunsetInfoElement.textContent = `[Set] Nautical Twilight: ${formattedSunsetTime} (UTC)`;
+    }
+
+    // Call the function to calculate and display the accurate sunset time for today in UTC
+    calculateAccurateSunsetTimeForToday();
+
+    // Function to calculate accurate sunrise time for tomorrow using Suncalc
+    function calculateAccurateSunriseTimeForTomorrow() {
+        const latitude = 34.7444; // Your observatory's latitude
+        const longitude = -111.422; // Your observatory's longitude
+
+        // Create a new date object for tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1); // Add 1 day to the current date
+
+        // Get sunrise time for tomorrow using Suncalc
+        const times = SunCalc.getTimes(tomorrow, latitude, longitude);
+
+        // Extract sunrise time from the Suncalc result
+        const sunriseTime = times.sunrise;
+
+		// Subtract one hour to the sunset time to make it Nautical twilight
+		sunriseTime.setUTCHours(sunriseTime.getUTCHours() - 1);
+
+        // Format the sunrise time in hours and minutes
+        const sunriseHours = sunriseTime.getUTCHours();
+        const sunriseMinutes = sunriseTime.getUTCMinutes();
+
+        // Format the sunrise time
+        const formattedSunriseTime = sunriseHours.toString().padStart(2, '0') + ':' + sunriseMinutes.toString().padStart(2, '0');
+
+        // Display the calculated sunrise time for tomorrow (UTC)
+        const sunriseInfoElement = document.getElementById('sunrise-info');
+        sunriseInfoElement.textContent = `[Rise] Nautical Twilight: ${formattedSunriseTime} (UTC)`;
+    }
+
+    // Call the function to calculate and display the accurate sunrise time for tomorrow in UTC
+    calculateAccurateSunriseTimeForTomorrow();
+	
+	// Function to calculate and display the difference between sunset and sunrise
+	function calculateTimeDifference(time1, time2) {
+		// Check if time1 and time2 are not undefined
+		if (time1 && time2) {
+			const time1Parts = time1.split(':');
+			const time2Parts = time2.split(':');
+
+			if (time1Parts.length === 2 && time2Parts.length === 2) {
+				const hours1 = parseInt(time1Parts[0], 10);
+				const minutes1 = parseInt(time1Parts[1], 10);
+
+				const hours2 = parseInt(time2Parts[0], 10);
+				const minutes2 = parseInt(time2Parts[1], 10);
+
+				// Calculate the time difference in minutes
+				const totalMinutes1 = hours1 * 60 + minutes1;
+				const totalMinutes2 = hours2 * 60 + minutes2;
+				const timeDifferenceMinutes = totalMinutes2 - totalMinutes1;
+
+				// Convert the time difference back to hours and minutes
+				const differenceHours = Math.floor(timeDifferenceMinutes / 60);
+				const differenceMinutes = timeDifferenceMinutes % 60;
+
+				// Format the difference as HH:MM
+				return `${differenceHours.toString().padStart(2, '0')}:${differenceMinutes.toString().padStart(2, '0')}`;
+			}
+		}
+
+		// Return a default value if something goes wrong
+		return 'N/A';
+	}
+
+	// Calculate and display the difference between sunset and sunrise
+	const sunsetTime = document.getElementById('sunset-info').textContent;
+	const sunriseTime = document.getElementById('sunrise-info').textContent;
+
+	const sunsetTimeStr = sunsetTime.split(': ')[1];
+	const sunriseTimeStr = sunriseTime.split(': ')[1];
+
+	const timeDifference = calculateTimeDifference(sunsetTimeStr, sunriseTimeStr);
+
+	// Display the time difference in the HTML document
+	const timeDifferenceElement = document.getElementById('observing-times-difference');
+	timeDifferenceElement.textContent = `Nominal Observing Times: ${timeDifference}`;
+
+    function calculateObservingEfficiency(observingTimeDifferenceSeconds, totalElapsedTimeSeconds) {
+        if (observingTimeDifferenceSeconds === -1 || totalElapsedTimeSeconds === -1) {
+            return 'Calculating...';
+        }
+
+        const efficiency = ((observingTimeDifferenceSeconds - totalElapsedTimeSeconds) / observingTimeDifferenceSeconds) * 100;
+        return efficiency.toFixed(2) + '%';
+    }
+
+    function updateObservingEfficiency() {
+        const observingTimeDifferenceElement = document.getElementById('observing-times-difference');
+        const totalElapsedTimeDisplayElement = document.getElementById('total-elapsed-time-display');
+
+        if (observingTimeDifferenceElement && totalElapsedTimeDisplayElement) {
+            const observingTimeDifference = observingTimeDifferenceElement.textContent.split(': ')[1];
+            const totalElapsedTime = totalElapsedTimeDisplayElement.textContent.split(': ')[1];
+
+            if (observingTimeDifference !== 'N/A') {
+                // Parse the observing time difference and total elapsed time as integers (in seconds)
+                const observingTimeDifferenceSeconds =
+                    parseInt(observingTimeDifference.split(':')[0], 10) * 3600 +
+                    parseInt(observingTimeDifference.split(':')[1], 10) * 60;
+
+                const totalElapsedTimeSeconds =
+                    parseInt(totalElapsedTime.split(':')[0], 10) * 3600 +
+                    parseInt(totalElapsedTime.split(':')[1], 10) * 60 +
+                    parseInt(totalElapsedTime.split(':')[2], 10);
+
+                const efficiency = calculateObservingEfficiency(observingTimeDifferenceSeconds, totalElapsedTimeSeconds);
+                const efficiencyElement = document.getElementById('observing-efficiency');
+                efficiencyElement.textContent = `Observing Efficiency: ${efficiency}`;
+            }
+        }
+    }
+
+	// Call the function to update observing efficiency
+	updateObservingEfficiency();
+
+    // Function to save the log to a .txt file
+    function saveLogToFile() {
+        // Get the current date
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+        // Create a blob with the log content
+        const logContent = generateLogContent();
+        const blob = new Blob([logContent], { type: 'text/plain' });
+
+        // Create an anchor element to trigger the download
+        const anchor = document.createElement('a');
+        anchor.href = URL.createObjectURL(blob);
+        anchor.download = `Timer_Log_${formattedDate}.txt`;
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+
+        // Trigger the download
+        anchor.click();
+
+        // Remove the anchor element from the DOM
+        document.body.removeChild(anchor);
+    }
+
+    // Function to generate the log content
+    function generateLogContent() {
+        let logContent = '';
+
+        // Add reason-times, observing-efficiency, and total-elapsed-time-display
+        const reasonTimesList = document.getElementById('reason-times');
+        const observingEfficiency = document.getElementById('observing-efficiency').textContent;
+        const totalElapsedTimeDisplay = document.getElementById('total-elapsed-time-display').textContent;
+
+        logContent += 'Reason Times:\n';
+        for (const reason of reasonTimesList.children) {
+            logContent += `${reason.textContent}\n`;
+        }
+
+        logContent += `\n${observingEfficiency}\n`;
+        logContent += `${totalElapsedTimeDisplay}\n`;
+        const logEntries = document.querySelectorAll('.log-entry-text');
+
+		logContent += '\n'
+
+        logEntries.forEach((entry) => {
+            logContent += entry.textContent + '\n';
+        });
+
+        return logContent;
+    }
+
+</script>
+</body>
+</html>
